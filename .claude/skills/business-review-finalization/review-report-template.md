@@ -1,0 +1,121 @@
+# 正式审核报告模板
+
+本文件定义业务审核正式报告的固定结构。
+
+---
+
+## 模板
+
+```yaml
+# === 业务审核报告 ===
+# 由 business-review-finalization skill 生成
+
+metadata:
+  report_id: ""                # BR-creative-001, BR-script-001 等
+  series_id: ""
+  episode_id: "ep01"
+  review_type: "business"      # business
+  generated_at: ""
+
+  # 审核对象信息
+  target_file: ""              # 审核对象文件路径
+  target_version: ""           # 审核对象版本号
+  target_stage: ""             # creative | script | planning | asset | video
+  target_status_before: ""     # 审核前状态
+
+  # 报告版本
+  report_version: "1.0"
+  report_status: "draft"       # draft | in_review | approved | rejected
+
+  # 审核轮次
+  review_round: 1
+  previous_report: ""          # 上一轮审核报告路径（如有）
+
+# === 审核结论 ===
+conclusion:
+  verdict: ""                  # pass | pass_with_revisions | fail
+  risk_level: ""               # high | medium | low
+  gate_decision: ""            # allowed | not_allowed
+  next_stage_allowed: true/false
+  reason: ""
+
+# === 维度评分 ===
+dimension_scores:
+  - dimension: ""
+    score: ""                  # pass | warning | fail
+    notes: ""
+  # ... 按阶段维度逐项填写
+
+# === 缺陷汇总 ===
+defect_summary:
+  total_defects: 0
+  blocking: 0
+  major: 0
+  minor: 0
+
+# === 缺陷列表 ===
+defects:
+  - defect_id: "DEF-001"
+    dimension: ""
+    severity: ""               # blocking | major | minor
+    description: ""
+    impact: ""
+    suggested_fix: ""
+    responsible_agent: ""
+    requires_retrial: true/false
+
+  # ... 所有缺陷逐条列出
+
+# === 审核说明 ===
+review_notes:
+  summary: ""                  # 审核总体说明
+  highlights: []               # 亮点（可选）
+  key_concerns: []             # 主要关注点
+
+# === 条件（仅 pass_with_revisions） ===
+conditions:
+  revision_required: true/false
+  revision_scope: ""           # 局部修改 | 大幅返工
+  revision_deadline: ""        # 修改时限（轮次或日期）
+  revision_items: []           # 必须修改的缺陷 ID
+  requires_retrial: true/false
+
+# === 退回信息（仅 fail） ===
+rejection:
+  fallback_stage: ""           # 建议回退阶段
+  responsible_agent: ""        # 建议责任 Agent
+  fix_scope: ""                # 局部修改 | 大幅返工
+  requires_full_retrial: true/false
+  estimated_impact: []         # 跨阶段影响
+
+# === 审核记录 ===
+review_log:
+  - round: 1
+    date: ""
+    verdict: ""
+    defects_found: 0
+    defects_fixed: 0
+    notes: ""
+
+# === 版本信息 ===
+changelog:
+  - version: "1.0"
+    date: ""
+    changes:
+      - "首次审核"
+    reason: ""
+```
+
+---
+
+## 使用规则
+
+1. 每份审核报告必须有唯一的 report_id
+2. report_id 格式：`BR-{stage}-{序号}`（如 BR-creative-001、BR-script-002）
+3. target_file 和 target_version 必须精确指向被审核的文件
+4. dimension_scores 必须覆盖对应阶段的所有维度
+5. defects 列表必须与 defect_summary 统计一致
+6. pass_with_revisions 必须填写 conditions 部分
+7. fail 必须填写 rejection 部分
+8. review_log 记录每轮审核历史
+9. 审核报告存放路径：`project_data/episodes/epXX/reviews/business/`

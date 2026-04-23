@@ -1,0 +1,131 @@
+# 资产生产阶段交接摘要模板
+
+本文件定义生产规划向资产生产阶段交接的固定格式。
+
+---
+
+## 模板
+
+```yaml
+# === 资产生产阶段交接摘要 ===
+# 由 segment-finalization-and-handoff skill 生成
+
+metadata:
+  series_id: ""
+  episode_id: "ep01"
+  planning_version: "1.0"
+  handoff_version: "1.0"
+  generated_at: ""
+  handoff_from: "production-planning-agent"
+  handoff_to: "asset-production-agent"
+
+# === 规划总览 ===
+planning_overview:
+  total_segments: 0
+  total_duration: ""
+  all_segments_ready: true     # 所有 segment 是否都具备资产规划条件
+  key_warning: ""              # 如果不是全部 ready，主要原因
+
+# === 可直接开始资产规划的 segment ===
+asset_ready_segments:
+  - segment_id: "SEG01"
+    duration: "15s"
+    characters_needed: []
+    backgrounds_needed: []
+    props_needed: []
+    first_frame_needed: true
+    last_frame_needed: true
+    priority: ""               # P0 | P1 | P2
+    notes: ""
+
+  # ... 所有 segment
+
+# === 风险较高的 segment ===
+high_risk_segments:
+  - segment_id: ""
+    risk_type: ""
+    description: ""
+    severity: ""
+    affected_assets: []
+    mitigation: ""
+
+# === 建议优先出资产的 segment ===
+priority_order:
+  - reason: "多段共用的场景资产优先出"
+    segments: []
+    assets_to_produce_first: []
+  - reason: "多段共用的角色资产优先出"
+    segments: []
+    assets_to_produce_first: []
+  - reason: "风险段落建议先出资产验证"
+    segments: []
+    assets_to_produce_first: []
+
+# === 锁定设定（不可修改） ===
+locked_settings:
+  - item: "角色外观设定"
+    reference: ""              # 引用设定文件路径
+    note: "资产生产不得修改角色外观"
+  - item: "场景设定"
+    reference: ""
+    note: "资产生产不得修改场景描述"
+  - item: "segment 编号"
+    reference: ""
+    note: "编号体系已锁定，不得重新编号"
+
+# === 仍可细化的内容 ===
+flexible_settings:
+  - item: "首帧/尾帧构图建议"
+    note: "资产生产阶段可根据实际效果微调"
+  - item: "道具细节"
+    note: "道具的具体风格可在资产阶段确定"
+  - item: "背景氛围细节"
+    note: "背景的光线、天气等可在资产阶段微调"
+
+# === 衔接关系摘要 ===
+continuity_summary:
+  - from_segment: ""
+    to_segment: ""
+    connection_type: ""
+    key_continuity_points: []  # 资产阶段需保持一致的要素
+
+# === 角色一致性参考 ===
+character_consistency:
+  - character: ""
+    segments_appeared: []
+    key_appearance_notes: ""
+    must_match: []             # 跨段必须一致的要素
+
+# === 场景一致性参考 ===
+scene_consistency:
+  - scene: ""
+    segments_appeared: []
+    key_scene_notes: ""
+    must_match: []
+
+# === 生产风险提示 ===
+production_risks:
+  - risk: ""
+    severity: ""
+    affected_segments: []
+    mitigation: ""
+
+# === 版本信息 ===
+version_info:
+  planning_version: ""
+  handoff_version: ""
+  status: "draft"
+  pending_items: []
+```
+
+---
+
+## 使用规则
+
+1. 资产生产 Agent 应先读本交接摘要，再按需读取具体 segment 任务文件
+2. asset_ready_segments 中的 segment 可直接开始资产规划
+3. high_risk_segments 中的 segment 应在资产阶段额外关注
+4. locked_settings 中的内容资产生产阶段不得修改
+5. flexible_settings 中的内容可在合理范围内微调
+6. priority_order 建议资产生产的优先顺序
+7. 交接摘要存放路径：`project_data/episodes/epXX/planning/`

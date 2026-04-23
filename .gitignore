@@ -1,0 +1,25 @@
+# Generated assets (large files)
+project_data/episodes/*/assets/images/*.png
+project_data/episodes/*/assets/images/*.jpg
+project_data/episodes/*/assets/images/*.webp
+project_data/episodes/*/videos/*.mp4
+project_data/episodes/*/videos/*.mov
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Environment & secrets
+.env
+.env.local
+.env.*.local
+credentials/
+*.key
+*.pem
+*.p12
+secrets.*
+secrets/

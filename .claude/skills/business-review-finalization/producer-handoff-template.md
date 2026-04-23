@@ -1,0 +1,114 @@
+# 主控交接摘要模板
+
+本文件定义业务审核向主控 Agent 交接的固定格式。
+
+---
+
+## 模板
+
+```yaml
+# === 业务审核主控交接摘要 ===
+# 由 business-review-finalization skill 生成
+
+metadata:
+  handoff_id: ""               # BH-creative-001, BH-script-001 等
+  series_id: ""
+  episode_id: "ep01"
+  target_stage: ""             # 审核对象所属阶段
+  target_file: ""
+  target_version: ""
+  generated_at: ""
+  handoff_from: "business-review-agent"
+  handoff_to: "producer-agent"
+
+# === 审核结论 ===
+conclusion_summary:
+  verdict: ""                  # pass | pass_with_revisions | fail
+  risk_level: ""               # high | medium | low
+  gate_decision: ""            # allowed | not_allowed
+  review_round: 1
+
+# === 放行决策 ===
+gate:
+  can_proceed: true/false
+  reason: ""
+
+  # 如果可以推进
+  if_proceed:
+    next_stage: ""             # 下一阶段名称
+    conditions: []             # 附条件放行的条件（如有）
+    required_actions: []       # 推进前需要做的动作
+
+  # 如果不可推进
+  if_blocked:
+    blocked_at: ""             # 卡在哪个阶段
+    blocked_reason: ""         # 卡住的原因
+    fallback_stage: ""         # 建议回退阶段
+    responsible_agent: ""      # 建议负责修改的 Agent
+    fix_scope: ""              # 局部修改 | 大幅返工
+    fix_summary: []            # 需要修复的内容摘要
+
+# === 缺陷快照 ===
+defect_snapshot:
+  total: 0
+  blocking: 0
+  major: 0
+  minor: 0
+  top_issues: []               # 最严重的 3 个问题摘要
+
+# === 重审要求 ===
+retrial_info:
+  required: true/false
+  type: ""                     # full | partial | targeted
+  scope: ""                    # 全量 | 仅修改项 | 修改项+关联
+  dimensions: []               # 需要重审的维度
+
+# === 跨阶段影响 ===
+cross_stage_impact:
+  has_impact: true/false
+  affected_stages: []          # 受影响的下游阶段
+  affected_products: []        # 受影响的产物文件
+  needs_downstream_retrial: true/false
+  details: []
+
+# === 关联文件 ===
+related_files:
+  review_report: ""            # 审核报告路径
+  revision_advice: ""          # 修改建议路径（如有）
+  previous_reports: []         # 历史审核报告路径
+
+# === 建议动作 ===
+suggested_actions:
+  - action: ""                 # 具体动作
+    responsible: ""            # 责任方
+    priority: ""               # P0 | P1 | P2
+    description: ""
+```
+
+---
+
+## 使用规则
+
+1. 每次审核完成后必须生成交接摘要
+2. 主控 Agent 应先读本交接摘要，再决定下一步动作
+3. gate 部分是主控的核心决策依据，必须清晰明确
+4. if_blocked 必须包含完整的回退路径和修复方向
+5. cross_stage_impact 必须主动评估，不得遗漏
+6. suggested_actions 按优先级排序，P0 动作必须立即执行
+7. 交接摘要存放路径：`project_data/episodes/epXX/reviews/business/`
+8. 交接摘要文件名格式：`business-review-handoff-{stage}-v{version}.yaml`
+
+---
+
+## 主控消费指南
+
+主控 Agent 收到交接摘要后的处理逻辑：
+
+| verdict | can_proceed | 主控动作 |
+|---------|------------|---------|
+| pass | true | 推进到下一阶段 |
+| pass_with_revisions | true（附条件） | 指派责任 Agent 修改 → 修改后重审 |
+| fail | false | 回退到指定阶段 → 指派责任 Agent 修复 → 修复后重审 |
+
+主控不得跳过交接摘要直接推进。
+主控不得在 can_proceed = false 时推进到下一阶段。

@@ -1,0 +1,138 @@
+---
+name: video-finalization-and-review-handoff
+description: 视频定稿与审核交接方法包。负责将成熟视频结果整理为正式文件、输出确认前复盘摘要、生成审核阶段交接摘要、管理版本与状态。适用于视频任务完成后的定稿和审核交接。
+---
+
+# Skill：video-finalization-and-review-handoff
+
+## 适用场景
+
+当 video-production-agent 判断视频任务和结果已基本成熟、准备进入定稿和审核交接时使用本 skill。
+
+典型触发条件：
+- 视频风险检查无 fail 项
+- 用户确认不再需要大幅修改
+- 视频已生成并需要归档整理
+- 需要为审核阶段准备交接材料
+
+**不适用**：还在生成 prompt、选择策略、做风险检查 → 使用 `video-generation-and-control`
+
+---
+
+## 核心目标
+
+1. 将成熟视频任务和结果整理为固定格式的正式文件
+2. 为用户输出可确认的复盘摘要
+3. 为审核阶段输出完整的交接摘要
+4. 明确哪些结果可审核、哪些应重试、哪些应回退
+5. 正确管理版本号和确认状态
+
+---
+
+## 输入
+
+| 输入 | 路径 | 用途 |
+|------|------|------|
+| 当前视频任务记录 | `project_data/episodes/epXX/video-tasks-vX.yaml` | 定稿基准 |
+| 当前视频 prompt | `project_data/episodes/epXX/video-prompts-vX.yaml` | 定稿参考 |
+| 视频生成结果 | `project_data/episodes/epXX/videos/` | 归档整理 |
+| 视频风险检查结果 | 任务文件内 risks 字段 | 确认无阻断 |
+| 重试记录 | 任务文件内 retry_log 字段 | 重试历史 |
+| 用户反馈 | 聊天上下文 | 确认定稿 |
+
+---
+
+## 输出
+
+| 产物 | 输出路径 | 说明 |
+|------|---------|------|
+| 正式视频任务文件 | `project_data/episodes/epXX/video-tasks-final-vX.yaml` | 定稿任务 |
+| 视频结果归档 | `project_data/episodes/epXX/video-archive-vX.yaml` | 结果归档 |
+| 确认前复盘摘要 | `project_data/episodes/epXX/video-review-summary-vX.yaml` | 给用户确认 |
+| 审核交接摘要 | `project_data/episodes/epXX/handoff-video-to-review-vX.yaml` | 给审核阶段 |
+
+---
+
+## 执行步骤
+
+### 第 1 步：读取当前最新视频版本
+
+读取视频任务记录、prompt 文件和已生成的视频结果。
+确认当前版本号和 status。
+
+### 第 2 步：判断是否具备定稿条件
+
+| 条件 | 标准 |
+|------|------|
+| 视频风险检查 | risks 中无 fail 项 |
+| 任务完整性 | 每个 segment 都有视频任务 |
+| 重试上限 | 无任务重试次数超过 3 次 |
+| 待确认项 | 无阻断型待确认项 |
+| 用户确认 | 用户明确表示可以定稿 |
+
+如果条件不满足 → 返回 `video-generation-and-control` 继续修改。
+如果条件满足 → 继续定稿。
+
+### 第 3 步：整理正式视频任务文件
+
+使用 `video-task-template.md` 模板整理正式任务文件：
+- 汇总所有任务的 prompt、输入策略、输入资产
+- 标注重试历史和最终策略
+- 统计任务分布
+
+### 第 4 步：整理正式视频结果归档
+
+使用 `video-result-template.md` 模板整理结果归档：
+- 每个视频结果对应的任务、segment、文件路径
+- 质量检查结果
+- 重试记录
+
+### 第 5 步：生成确认前复盘摘要
+
+使用 `video-review-summary-template.md` 模板生成复盘摘要：
+- 已确认的视频段清单
+- 待确认内容
+- 主要风险提示
+- 确认后下一步
+
+### 第 6 步：生成审核阶段交接摘要
+
+使用 `review-handoff-template.md` 模板生成交接摘要：
+- 可直接进入审核的视频段
+- 存在连续性风险的视频段
+- 建议重试的视频段
+- 建议回退上游的视频段
+
+### 第 7 步：更新版本号与状态字段
+
+参照 `version-status-rules.md`：
+- 递增版本号
+- 更新 status 为 in_review
+- 更新时间戳和变更说明
+
+---
+
+## 约束边界
+
+本 skill **不允许**：
+- 继续大规模改动上游生产规划或资产结果
+- 越权承担业务审核或合规审核职责
+- 越权做后期剪辑决策
+- 调用 Dream Maker 或任何执行型生成工具
+
+本 skill **允许**：
+- 读取所有项目文件
+- 写入视频任务、结果归档、复盘摘要、交接摘要
+- 更新版本号和状态字段
+
+---
+
+## 完成标准
+
+执行本 skill 后，必须能明确回答：
+
+1. **定稿条件**：当前视频阶段是否已达到定稿条件
+2. **版本号**：当前正式版本号
+3. **确认状态**：当前 status
+4. **交接条件**：是否已具备交给审核阶段的条件
+5. **可审核段**：哪些结果可审核、哪些不应放行

@@ -1,0 +1,127 @@
+# 合规审核版本与状态规则
+
+本文件定义合规审核产物的版本号递增规则和状态取值规则。
+
+---
+
+## 版本号规则
+
+### 格式
+
+版本号格式：`主版本.次版本`（如 `1.0`、`1.1`、`2.0`）
+
+### 递增规则
+
+| 变更类型 | 版本递增 | 示例 | 说明 |
+|---------|---------|------|------|
+| 首次审核 | → 1.0 | — | 第一次合规审核 |
+| 重审（整改后部分通过） | 次版本 +1 | 1.0 → 1.1 | 整改后重审 |
+| 重审（大幅返工后） | 主版本 +1 | 1.0 → 2.0 | fail 后大幅返工重审 |
+| 补充审核 | 次版本 +1 | 1.0 → 1.1 | 新增风险检查域 |
+
+### 版本号管理规则
+
+1. 每次写入新版本时，必须更新 report_version
+2. 旧版本文件保留，不做删除或覆盖
+3. 文件名中包含版本号：`compliance-report-v1.0.yaml`
+4. 下游引用（交接摘要）必须引用具体版本号
+5. 合规报告、整改建议、交接摘要共用同一版本号体系
+
+---
+
+## 状态规则
+
+### 合规报告状态
+
+| 状态 | 含义 | 允许的操作 |
+|------|------|-----------|
+| `draft` | 审核进行中 | 继续审核、补充检查 |
+| `in_review` | 等待主控确认 | 等待主控决策 |
+| `approved` | 已通过合规审核 | 不可修改，作为最终记录 |
+| `rejected` | 合规审核未通过 | 进入整改流程 |
+
+### 审核对象状态
+
+| 合规结论 | 审核对象状态变更 | 合规报告状态 |
+|---------|----------------|-------------|
+| pass | in_review → approved | approved |
+| conditional_pass | in_review → 保持 in_review | in_review |
+| fail | in_review → rejected | rejected |
+
+### 状态流转规则
+
+```
+审核对象状态：
+draft → in_review → approved
+                   ↘ rejected → draft → in_review → ...
+
+合规报告状态：
+draft → in_review → approved
+                   ↘ rejected
+```
+
+**流转条件：**
+
+| 转换 | 条件 | 执行者 |
+|------|------|-------|
+| draft → in_review | 风险检查完毕 | compliance-review-agent |
+| in_review → approved | verdict = pass | compliance-review-agent |
+| in_review → rejected | verdict = fail | compliance-review-agent |
+| 审核对象 rejected → draft | 责任 Agent 开始整改 | 责任 Agent |
+| 审核对象 draft → in_review | 整改完成，重新提交 | 责任 Agent |
+
+---
+
+## 多版本并存规则
+
+1. 同一审核对象最多保留最近 3 份合规报告
+2. 超过 3 份的，最早的报告可归档到 `reviews/compliance/archive/`
+3. 主控交接摘要始终引用最新的合规报告版本
+4. 如果最新报告不是 approved，上溯到最近的 approved 版本
+
+---
+
+## 变更日志
+
+每份合规报告应在 changelog 中记录变更说明：
+
+```yaml
+changelog:
+  - version: "1.1"
+    date: ""
+    changes:
+      - "重审：整改 RSK-001 和 RSK-002 后重新审核"
+      - "RSK-001 整改确认：角色外观已修改，不再与真实人物相似"
+      - "RSK-002 整改确认：敏感对白已替换"
+    reason: "conditional_pass 整改后重审"
+  - version: "1.0"
+    date: ""
+    changes:
+      - "首次合规审核"
+    reason: "阶段产物提交合规审核"
+```
+
+---
+
+## 审核报告引用规则
+
+整改建议和交接摘要必须引用具体合规报告：
+
+```yaml
+metadata:
+  based_on_report: "CR-script-001"
+  report_version: "1.0"
+  report_verdict: "conditional_pass"
+```
+
+---
+
+## 文件命名规范
+
+| 文件类型 | 命名格式 | 示例 |
+|---------|---------|------|
+| 合规报告 | `compliance-report-{stage}-v{version}.yaml` | `compliance-report-script-v1.0.yaml` |
+| 整改建议 | `remediation-advice-{stage}-v{version}.yaml` | `remediation-advice-script-v1.0.yaml` |
+| 交接摘要 | `compliance-handoff-{stage}-v{version}.yaml` | `compliance-handoff-script-v1.0.yaml` |
+
+存放路径：`project_data/episodes/epXX/reviews/compliance/`

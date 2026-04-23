@@ -1,0 +1,119 @@
+---
+name: compliance-risk-evaluation
+description: 合规风险识别与结论判断方法包。负责对各生产阶段产物进行版权、IP、人物权、敏感内容、平台限制等合规风险检查，输出风险分级和通过/有条件通过/退回结论。适用于合规审核阶段的风险评估与决策。
+---
+
+# 合规风险识别与结论判断
+
+## 适用场景
+
+当主控 Agent 将任意阶段的正式产物提交合规审核时使用。适用于创意设定、剧本、资产、视频等全部阶段的合规风险检查。
+
+不适用于业务质量审核、内容生成、流程推进。
+
+## 核心目标
+
+1. 对审核对象做标准化合规风险检查
+2. 识别版权、IP、人物权、敏感内容、平台限制等风险
+3. 区分高风险、中风险、低风险
+4. 输出明确的 pass / conditional_pass / fail 结论
+5. 为主控 Agent 提供合规放行或回退依据
+
+## 输入
+
+| 输入项 | 来源 | 必需 |
+|--------|------|------|
+| 审核对象正式文件 | 各阶段产物目录 | 是 |
+| 当前阶段标识 | 主控调度指令 | 是 |
+| 当前版本号 | 审核对象 metadata | 是 |
+| 当前状态 | 审核对象 metadata | 是 |
+| 相关交接摘要 | 前一阶段交接文件 | 否 |
+| 历史合规审核结果 | reviews/compliance/ 目录 | 否 |
+
+## 输出
+
+| 输出项 | 格式 | 说明 |
+|--------|------|------|
+| 合规结论 | pass / conditional_pass / fail | 三选一 |
+| 风险类型列表 | 按版权/IP/人物/敏感/平台分类 | 引用 compliance-rules.md |
+| 风险等级 | high / medium / low | 引用 risk-classification-guide.md |
+| 放行判断 | allowed / conditional / blocked | 是否可进入下一阶段 |
+| 建议责任 Agent | 具体 Agent 名称 | 修改责任方 |
+
+## 执行步骤
+
+### 步骤 1：识别审核对象和所属阶段
+
+1. 读取审核对象文件的 metadata，确认 version 和 status（必须为 in_review）
+2. 根据文件类型或主控指令确定所属阶段：
+   - 创意设定 → creative
+   - 正式剧本 → script
+   - 图片资产 → asset（pre_generation / post_generation）
+   - 视频 prompt → video（pre_generation）
+   - 视频结果 → video（post_generation）
+3. 如果 status 不是 in_review，输出错误并终止
+
+### 步骤 2：加载对应合规规则
+
+1. 根据 Step 1 确定的阶段，读取 [compliance-rules.md](compliance-rules.md) 中对应规则
+2. 读取 [risk-classification-guide.md](risk-classification-guide.md) 了解风险分级标准
+3. 如有历史合规审核结果，加载上一轮风险清单用于对比
+
+### 步骤 3：逐规则域进行风险检查
+
+1. 按 compliance-rules.md 定义的规则域逐项检查：
+   - 版权 / IP 风险
+   - 真实人物 / 明星 / 公众人物相似性
+   - 肖像权 / 声音权
+   - 人格权 / 名誉权
+   - 敏感内容
+   - 平台内容限制
+   - 输入素材来源
+2. 每个规则域给出 clear / warning / violation 判定
+3. 对 warning 和 violation 项，记录具体风险描述
+
+### 步骤 4：进行风险分级
+
+1. 将 Step 3 中发现的所有风险按 [risk-classification-guide.md](risk-classification-guide.md) 分级：
+   - high：必须阻断，不允许进入下一阶段
+   - medium：需修改但可附条件放行
+   - low：可记录，不阻断
+2. 每条风险必须包含：风险类型、风险等级、具体描述、影响范围、修改建议、建议责任 Agent
+
+### 步骤 5：输出审核结论
+
+1. 根据 [decision-rules.md](decision-rules.md) 的判定矩阵，综合所有风险检查结果
+2. 输出审核结论：
+   - pass：无 warning 或 violation，或有 low 级别风险不超过 3 个
+   - conditional_pass：无 high 风险，但有 medium 风险
+   - fail：存在 high 级别风险
+3. 输出整体风险等级
+
+### 步骤 6：输出放行判断
+
+1. 根据审核结论和 decision-rules.md 中的放行规则：
+   - pass → allowed，可进入下一阶段
+   - conditional_pass → conditional，需在指定时间内完成修改
+   - fail → blocked，必须退回修改
+2. 如 blocked，明确：回退阶段、责任 Agent、修改方向、是否需要重审
+3. 将评估结果传递给 `compliance-finalization-and-handoff` skill 做正式落档
+
+## 约束边界
+
+| 约束 | 说明 |
+|------|------|
+| 不修改审核对象 | 只读取和评估，不做任何编辑 |
+| 不代替专业 Agent | 可建议修改方向，但不写具体内容 |
+| 不做业务质量判断 | 业务质量由 business-review-agent 负责 |
+| 不推进流程 | 只输出结论，由主控决定推进或回退 |
+| 不跳过规则域 | 每个阶段的合规规则域必须逐项检查 |
+
+## 完成标准
+
+执行完成后，必须能明确回答以下 5 个问题：
+
+1. 审核对象是否存在合规风险？ → 已识别并分级
+2. 风险类型是什么？ → 已列出具体类型
+3. 风险等级是什么？ → 已标注 high/medium/low
+4. 是否能放行？ → 已给出 allowed/conditional/blocked
+5. 不放行时由谁修改？ → 已指定责任 Agent
