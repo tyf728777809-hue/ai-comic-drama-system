@@ -1,0 +1,35 @@
+metadata:
+  series_id: "SER0001"
+  episode_id: "epXX"
+  version: "1.0"
+  status: "draft"
+  created_at: "2026-04-25T00:00:00+08:00"
+  updated_at: "2026-04-25T00:00:00+08:00"
+summary: {}
+results:
+  - task_id: "VTASK_SEG01"
+    segment_id: "SEG01"
+    episode_id: "epXX"
+    input_strategy: "first_frame_only"
+    inputs_used: {}
+    result_file: ""
+    generation_params: {}
+    quality_check: "pending"
+    continuity_check: "pending"
+    retry_count: 0
+    retry_log: []
+    final_version: true
+    status: "draft"
+    review_notes: ""
+quality_summary: {}
+failed_results: []
+changelog:
+  - version: "1.0"
+    date: "2026-04-25"
+    changes:
+      - "初始视频归档模板"
+    reason: "项目初始化"
+pending_items:
+  - ""
+risks:
+  - ""

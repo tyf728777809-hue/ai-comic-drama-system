@@ -1,0 +1,73 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+title: segments
+type: object
+additionalProperties: false
+x-workflow-guard:
+  kind: segments
+  canonical_paths:
+    - project_data/projects/*/episodes/*/segments/segments-v*.yaml
+  orchestrator_required_paths:
+    - summary.total_segments
+    - segments[].key_visual
+    - segments[].shot_type
+    - segments[].camera_movement
+    - segments[].transition_in
+    - segments[].transition_out
+required:
+  - metadata
+  - summary
+  - segments
+  - continuity_map
+  - risks
+  - changelog
+  - pending_items
+properties:
+  metadata:
+    type: object
+    required: [series_id, episode_id, version, status, created_at, updated_at, based_on]
+    properties:
+      series_id: {type: string}
+      episode_id: {type: string}
+      version: {type: string}
+      status: {type: string, enum: [draft, in_review, approved, rejected]}
+      created_at: {type: string}
+      updated_at: {type: string}
+      based_on: {type: object}
+  summary:
+    type: object
+    required: [total_segments, total_duration, by_purpose, by_scene, by_risk]
+    properties:
+      total_segments: {type: integer}
+      total_duration: {type: string}
+      by_purpose: {type: object}
+      by_scene: {type: array}
+      by_risk: {type: object}
+  segments:
+    type: array
+    minItems: 1
+    items:
+      type: object
+      additionalProperties: false
+      required: [segment_id, duration, purpose, purpose_description, content_summary, key_characters, scene, key_visual, shot_type, camera_movement, transition_in, transition_out, emotion_start, emotion_end, risk_level, risk_notes, pending_items]
+      properties:
+        segment_id: {type: string}
+        duration: {type: string}
+        purpose: {type: string}
+        purpose_description: {type: string}
+        content_summary: {type: string}
+        key_characters: {type: array}
+        scene: {type: string}
+        key_visual: {type: string}
+        shot_type: {type: string}
+        camera_movement: {type: string}
+        transition_in: {type: string}
+        transition_out: {type: string}
+        emotion_start: {type: string}
+        emotion_end: {type: string}
+        risk_level: {type: string, enum: [high, medium, low]}
+        risk_notes: {type: string}
+        pending_items: {type: array}
+  continuity_map: {type: array}
+  risks: {type: object}
+  changelog: {type: array}
+  pending_items: {type: array}

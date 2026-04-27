@@ -1,0 +1,183 @@
+---
+name: producer-stage-orchestration
+description: 主控 Agent 的正常推进方法包。负责阶段判断、状态同步、审核门禁、segment 级并行调度和推进决策。适用于项目处于正常流转状态时使用，不处理失败恢复。
+---
+
+# Skill：producer-stage-orchestration
+
+## 适用场景
+
+当主控 Agent 需要判断“项目当前在哪一步、下一步该做什么”时使用本 skill。
+
+典型触发条件：
+- 用户发起新项目
+- 用户说“继续推进”“下一步”
+- 某个阶段刚完成，需要判断能否进入下一阶段
+- 需要确认当前项目状态
+- 需要判断资产 / 视频阶段是否可以 segment 级并行
+
+**不适用**：审核失败、生成失败、需要回退时 → 使用 `producer-recovery-control`
+
+## 核心目标
+
+1. 基于文件和状态精确判断当前阶段
+2. 区分系列级产物、单集级产物和 segment 级推进状态
+3. 使用审核 verdict 与 gate_decision 判断能否推进
+4. 输出 episode 级调度结论和 segment ledger 视图
+
+## 输入
+
+本 skill 通过读取以下位置获取信息：
+
+| 输入来源 | 路径 | 用途 |
+|---------|------|------|
+| 系列级产物 | `project_data/projects/{project_id}/series/` | 确认创意、梗概、分集规划和系列级审核状态 |
+| 系列级审核 | `project_data/projects/{project_id}/series/reviews/` | 确认创意阶段业务 / 合规 verdict |
+| 单集数据 | `project_data/projects/{project_id}/episodes/epXX/` | 确认剧本、segments、assets、videos、reviews |
+| 单集级审核 | `project_data/projects/{project_id}/episodes/epXX/reviews/` | 确认剧本、规划、资产、视频相关 verdict |
+| 调度视图 | `project_data/projects/{project_id}/episodes/epXX/orchestration/` | 读取历史调度结果与 segment ledger（如存在） |
+
+读取规则：
+- 如果目标文件不存在，视为该产物“未产出”
+- 正式产物推进只看 `metadata.status`
+- 审核放行只看 `conclusion.verdict` 与 `gate_decision`
+- `report_status` 仅表示审核文件本身是否整理完成，不作为推进依据
+
+## 输出
+
+本 skill 输出两个固定结构：
+- `orchestration_result`：episode 级调度结论
+- `segment_ledger`：阶段 4/5 的 segment 级推进视图
+
+模板见 `orchestration-output-template.md`。
+
+## 执行步骤
+
+### 第 1 步：识别任务归属
+
+判断当前请求属于哪种类型：
+
+| 类型 | 判断依据 |
+|------|---------|
+| 新项目启动 | `project_data/projects/{project_id}/series/` 和 `project_data/projects/{project_id}/episodes/` 无正式产物 |
+| 阶段推进 | 当前阶段正式产物状态为 `draft` 或 `in_review` |
+| 审核后修改 | 最新审核 `conclusion.verdict = fail` |
+| 回退后重进 | 有 `rejected` 的正式产物 + 已有修改记录 |
+| 交接下一阶段 | 当前阶段正式产物为 `approved`，且审核 verdict 允许推进 |
+
+### 第 2 步：读取当前项目状态
+
+使用 Glob 扫描以下目录：
+
+```text
+project_data/projects/{project_id}/series/*.yaml
+project_data/projects/{project_id}/series/reviews/**/*.yaml
+project_data/projects/{project_id}/episodes/ep*/script/*.yaml
+project_data/projects/{project_id}/episodes/ep*/segments/*.yaml
+project_data/projects/{project_id}/episodes/ep*/segments/tasks/*.yaml
+project_data/projects/{project_id}/episodes/ep*/assets/*.yaml
+project_data/projects/{project_id}/episodes/ep*/videos/*.yaml
+project_data/projects/{project_id}/episodes/ep*/reviews/**/*.yaml
+project_data/projects/{project_id}/episodes/ep*/orchestration/*.yaml
+```
+
+必须确认：
+- 当前阶段（参照 `stage-detection-rules.md`）
+- 每个正式产物的最新版本号和 `metadata.status`
+- 最近审核 `conclusion.verdict` 与 `gate_decision`
+- 各正式产物的 `pending_items`
+- 资产 / 视频阶段每个 segment 是否满足启动条件
+
+### 第 3 步：判断当前阶段是否完整
+
+参照 `stage-detection-rules.md` 对当前阶段执行完整性检查：
+- 正式产物是否都已存在
+- schema 关键字段是否齐全
+- 是否仍有阻断型 `pending_items`
+- 是否引用了非 `approved` 的上游正式产物
+
+### 第 4 步：判断是否需要审核
+
+参照 `phase-entry-exit-matrix.md` 检查当前阶段是否处于审核门禁节点：
+- 本阶段完成后是否需要业务审核
+- 本阶段完成后是否需要合规审核
+- 当前最新审核 verdict 是否允许推进
+- 是否需要先做生成前合规审核
+
+### 第 5 步：判断下一步执行者
+
+根据阶段和 verdict 决定下一步：
+
+| 当前状态 | 下一步 Agent | 判断依据 |
+|---------|-------------|---------|
+| 创意定义进行中 | creative-development-agent | 正式创意设定未 approved |
+| 创意待审核 | business-review-agent / compliance-review-agent | 创意设定 ready，但 verdict 不完整 |
+| 创意通过 | script-development-agent | 创意正式文件 approved，业务与合规均放行 |
+| 剧本进行中 | script-development-agent | 剧本未 approved |
+| 剧本待审核 | business-review-agent / compliance-review-agent | 剧本 ready，但 verdict 不完整 |
+| 剧本通过 | production-planning-agent | 剧本正式文件 approved，业务与合规均放行 |
+| 规划进行中 | production-planning-agent | segments 未 approved |
+| 规划待审核 | business-review-agent / compliance-review-agent | 规划 ready，但 verdict 不完整 |
+| 规划通过 | asset-production-agent / compliance-review-agent | segment 已 approved，进入资产前合规检查 |
+| 资产可启动 | asset-production-agent | segment ledger 中 `can_start_asset = true` |
+| 视频可启动 | video-production-agent | segment ledger 中 `can_start_video = true` |
+| 审核失败 | producer-recovery-control | 最新 verdict = fail |
+
+### 第 6 步：生成 segment ledger
+
+仅阶段 4/5 需要生成 `segment_ledger`。
+
+每个 segment 固定记录以下字段：
+- `segment_id`
+- `planning_status`
+- `asset_precheck_compliance`
+- `asset_output_status`
+- `asset_business_verdict`
+- `asset_compliance_verdict`
+- `video_precheck_compliance`
+- `video_output_status`
+- `video_business_verdict`
+- `video_compliance_verdict`
+- `blocked_by`
+- `can_start_asset`
+- `can_start_video`
+
+判定规则：
+- `can_start_asset = true` 的唯一条件：segment 规划 approved，且资产前合规已 pass 或 conditional_pass
+- `can_start_video = true` 的唯一条件：segment 规划 approved、该 segment 资产结果 approved、资产生成后业务与合规均放行、视频生成前合规已放行
+
+### 第 7 步：输出调度结论
+
+按 `orchestration-output-template.md` 输出固定格式。
+向用户说明：
+- 当前阶段
+- 已完成内容
+- 缺失审核或阻断项
+- 下一步执行者
+- 哪些 segment 可以并行推进
+
+## 约束边界
+
+本 skill **不允许**：
+- 直接撰写创意、剧本、segment、prompt 等专业内容
+- 直接调用 Dream Maker 或任何执行型生成工具
+- 越权修改专业 Agent 的正式产物
+- 跳过审核直接放行
+- 用 `report_status` 代替 verdict 做推进判断
+
+本 skill **允许**：
+- 读取所有项目文件
+- 写入调度结论和阶段交接摘要
+- 调用其他 Agent 和 Skill
+
+## 完成标准
+
+执行本 skill 后，主控 Agent 必须能明确回答以下问题：
+
+1. 当前阶段是什么
+2. 判断依据来自哪些文件和字段
+3. 还缺哪些正式产物或审核
+4. 哪些 segment 可以推进资产
+5. 哪些 segment 可以推进视频
+6. 应该调用哪个 Agent
+7. 是否允许进入下一阶段，如果不允许原因是什么

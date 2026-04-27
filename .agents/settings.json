@@ -1,0 +1,22 @@
+{
+  "project": {
+    "name": "AI 漫剧自动生产系统",
+    "version": "0.1.0"
+  },
+  "permissions": {
+    "allow": [],
+    "deny": []
+  },
+  "agents": {
+    "enabled": [
+      "producer-agent",
+      "creative-development-agent",
+      "script-development-agent",
+      "production-planning-agent",
+      "asset-production-agent",
+      "video-production-agent",
+      "business-review-agent",
+      "compliance-review-agent"
+    ]
+  }
+}

@@ -1,0 +1,96 @@
+metadata:
+  project_name: ""
+  series_id: "SER0001"
+  version: "1.0"
+  status: "draft"
+  created_at: "2026-04-25T00:00:00+08:00"
+  updated_at: "2026-04-25T00:00:00+08:00"
+  previous_version: ""
+  changelog:
+    - version: "1.0"
+      date: "2026-04-25"
+      changes:
+        - "初始创意设定模板"
+      reason: "项目初始化"
+project_positioning:
+  title: ""
+  format: ""
+  genre: ""
+  style: ""
+  target_audience: ""
+  platform: ""
+core_hook:
+  logline: ""
+  hook_description: ""
+  core_selling_point: ""
+  opening_hook: ""
+story_core:
+  premise: ""
+  core_conflict: ""
+  central_question: ""
+  emotional_core: ""
+  narrative_arc: ""
+protagonist:
+  name: ""
+  age: ""
+  occupation: ""
+  personality: ""
+  appearance: ""
+  visual_keywords:
+    - ""
+  signature_look: ""
+  core_desire: ""
+  core_flaw: ""
+  starting_state: ""
+  arc_direction: ""
+  special_notes: ""
+supporting_characters:
+  - name: ""
+    role: ""
+    relationship_to_protagonist: ""
+    personality: ""
+    appearance: ""
+    visual_keywords:
+      - ""
+    signature_look: ""
+    narrative_function: ""
+    arc_direction: ""
+    special_notes: ""
+character_relationships: {}
+worldbuilding:
+  setting: ""
+  type: ""
+  core_rules:
+    - ""
+  visual_style: ""
+  color_palette:
+    - ""
+  daily_life: ""
+  constraints:
+    - ""
+production_params:
+  episode_duration: "15s"
+  episode_count: ""
+  segment_duration: "15s"
+  segments_per_episode: ""
+  format_notes: ""
+business_goals: {}
+references:
+  - name: ""
+    type: ""
+    aligned_dimensions:
+      - dimension: ""
+        detail: ""
+    not_aligned: []
+    priority: 1
+boundaries: {}
+risk_assessment: {}
+pending_items:
+  - item: ""
+    priority: "P1"
+    impact: ""
+    suggested_resolution: ""
+locked_vs_explorable:
+  locked: []
+  explorable: []
+  flexibility_notes: ""

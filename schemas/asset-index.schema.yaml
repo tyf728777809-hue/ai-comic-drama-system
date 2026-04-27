@@ -1,0 +1,55 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+title: asset-index
+type: object
+additionalProperties: false
+x-workflow-guard:
+  kind: asset-index
+  canonical_paths:
+    - project_data/projects/*/episodes/*/assets/asset-index-v*.yaml
+required:
+  - metadata
+  - summary
+  - assets
+  - reuse_map
+  - segment_coverage
+  - key_assets
+  - changelog
+  - pending_items
+properties:
+  metadata:
+    type: object
+    required: [series_id, episode_id, version, status, created_at, updated_at, based_on]
+    properties:
+      series_id: {type: string}
+      episode_id: {type: string}
+      version: {type: string}
+      status: {type: string, enum: [draft, in_review, approved, rejected]}
+      created_at: {type: string}
+      updated_at: {type: string}
+      based_on: {type: object}
+  summary: {type: object}
+  assets:
+    type: array
+    items:
+      type: object
+      required: [asset_id, type, segment_id, episode_id, description, purpose, source, result_file, quality_check, status]
+      properties:
+        asset_id: {type: string}
+        type: {type: string}
+        segment_id: {type: string}
+        episode_id: {type: string}
+        description: {type: string}
+        purpose: {type: string}
+        source: {type: string, enum: [generate, reuse]}
+        reuse_from: {type: string}
+        prompt_ref: {type: string}
+        result_file: {type: string}
+        quality_check: {type: string}
+        status: {type: string}
+        risks: {type: array}
+        notes: {type: string}
+  reuse_map: {type: array}
+  segment_coverage: {type: array}
+  key_assets: {type: array}
+  changelog: {type: array}
+  pending_items: {type: array}

@@ -1,0 +1,54 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+title: video-archive
+type: object
+additionalProperties: false
+x-workflow-guard:
+  kind: video-archive
+  canonical_paths:
+    - project_data/projects/*/episodes/*/videos/video-archive-v*.yaml
+required:
+  - metadata
+  - summary
+  - results
+  - quality_summary
+  - failed_results
+  - changelog
+  - pending_items
+  - risks
+properties:
+  metadata:
+    type: object
+    required: [series_id, episode_id, version, status, created_at, updated_at]
+    properties:
+      series_id: {type: string}
+      episode_id: {type: string}
+      version: {type: string}
+      status: {type: string, enum: [draft, in_review, approved, rejected]}
+      created_at: {type: string}
+      updated_at: {type: string}
+  summary: {type: object}
+  results:
+    type: array
+    items:
+      type: object
+      required: [task_id, segment_id, episode_id, input_strategy, inputs_used, result_file, generation_params, quality_check, continuity_check, retry_count, retry_log, final_version, status, review_notes]
+      properties:
+        task_id: {type: string}
+        segment_id: {type: string}
+        episode_id: {type: string}
+        input_strategy: {type: string}
+        inputs_used: {type: object}
+        result_file: {type: string}
+        generation_params: {type: object}
+        quality_check: {type: string}
+        continuity_check: {type: string}
+        retry_count: {type: integer}
+        retry_log: {type: array}
+        final_version: {type: boolean}
+        status: {type: string}
+        review_notes: {type: string}
+  quality_summary: {type: object}
+  failed_results: {type: array}
+  changelog: {type: array}
+  pending_items: {type: array}
+  risks: {type: array}

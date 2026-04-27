@@ -1,0 +1,58 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+title: video-tasks
+type: object
+additionalProperties: false
+x-workflow-guard:
+  kind: video-tasks
+  canonical_paths:
+    - project_data/projects/*/episodes/*/videos/video-tasks-v*.yaml
+    - project_data/projects/*/episodes/*/videos/video-tasks-final-v*.yaml
+required:
+  - metadata
+  - summary
+  - tasks
+  - continuity_map
+  - changelog
+  - pending_items
+properties:
+  metadata:
+    type: object
+    required: [series_id, episode_id, version, status, created_at, updated_at, based_on]
+    properties:
+      series_id: {type: string}
+      episode_id: {type: string}
+      version: {type: string}
+      status: {type: string, enum: [draft, in_review, approved, rejected]}
+      created_at: {type: string}
+      updated_at: {type: string}
+      based_on: {type: object}
+  summary: {type: object}
+  tasks:
+    type: array
+    items:
+      type: object
+      required: [task_id, segment_id, episode_id, duration, planning_status, input_strategy, strategy_reason, inputs, prompt, generation_params, status, quality_check, retry_count, max_retries, final_attempt, connects_from, connects_to, continuity_notes, risks, notes]
+      properties:
+        task_id: {type: string}
+        segment_id: {type: string}
+        episode_id: {type: string}
+        duration: {type: string}
+        planning_status: {type: string}
+        input_strategy: {type: string}
+        strategy_reason: {type: string}
+        inputs: {type: object}
+        prompt: {type: object}
+        generation_params: {type: object}
+        status: {type: string}
+        quality_check: {type: string}
+        retry_count: {type: integer}
+        max_retries: {type: integer}
+        final_attempt: {type: boolean}
+        connects_from: {type: string}
+        connects_to: {type: string}
+        continuity_notes: {type: string}
+        risks: {type: array}
+        notes: {type: string}
+  continuity_map: {type: array}
+  changelog: {type: array}
+  pending_items: {type: array}

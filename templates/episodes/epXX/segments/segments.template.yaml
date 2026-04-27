@@ -1,0 +1,49 @@
+metadata:
+  series_id: "SER0001"
+  episode_id: "epXX"
+  version: "1.0"
+  status: "draft"
+  created_at: "2026-04-25T00:00:00+08:00"
+  updated_at: "2026-04-25T00:00:00+08:00"
+  based_on:
+    script: "project_data/projects/{project_id}/episodes/epXX/script/script-v1.0.yaml"
+summary:
+  total_segments: 1
+  total_duration: "15s"
+  by_purpose: {}
+  by_scene:
+    - ""
+  by_risk: {}
+segments:
+  - segment_id: "SEG01"
+    duration: "15s"
+    purpose: ""
+    purpose_description: ""
+    content_summary: ""
+    key_characters:
+      - ""
+    scene: ""
+    key_visual: ""
+    shot_type: ""
+    camera_movement: ""
+    transition_in: ""
+    transition_out: ""
+    emotion_start: ""
+    emotion_end: ""
+    risk_level: "low"
+    risk_notes: ""
+    pending_items:
+      - ""
+continuity_map:
+  - from_segment: ""
+    to_segment: ""
+    note: ""
+risks: {}
+changelog:
+  - version: "1.0"
+    date: "2026-04-25"
+    changes:
+      - "初始 segment 规划模板"
+    reason: "项目初始化"
+pending_items:
+  - ""

@@ -1,0 +1,60 @@
+metadata:
+  series_id: "SER0001"
+  episode_id: "epXX"
+  version: "1.0"
+  status: "draft"
+  created_at: "2026-04-25T00:00:00+08:00"
+  updated_at: "2026-04-25T00:00:00+08:00"
+  based_on:
+    creative_bible: "project_data/projects/{project_id}/series/creative-bible-v1.0.yaml"
+    synopsis: "project_data/projects/{project_id}/series/synopsis-v1.0.yaml"
+    episode_plan: "project_data/projects/{project_id}/series/episode-plan-v1.0.yaml"
+episode:
+  title: ""
+  goal: ""
+  synopsis: ""
+  core_conflict: ""
+characters_in_episode:
+  - name: ""
+    role_in_episode: ""
+    key_actions:
+      - ""
+    visual_keywords:
+      - ""
+scenes:
+  - scene_id: "SCENE_01"
+    location: ""
+    time: ""
+    characters:
+      - ""
+    action: ""
+    dialogue:
+      - character: ""
+        line: ""
+    emotion: ""
+    value_change: ""
+    production_note: ""
+    estimated_duration: "15s"
+episode_hooks:
+  opening_hook:
+    description: ""
+    visual_frame: ""
+  mid_reversal:
+    description: ""
+    setup_in: ""
+    visual_frame: ""
+  ending_hook:
+    description: ""
+    visual_frame: ""
+    leads_to: ""
+emotion_arc:
+  overall_arc: ""
+  peak_scene: ""
+  peak_emotion: ""
+  low_point_scene: ""
+structure_check: {}
+platform_check: {}
+risks: {}
+confirmed_items: []
+pending_items:
+  - ""

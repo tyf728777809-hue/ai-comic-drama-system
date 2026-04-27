@@ -1,0 +1,57 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+title: segment-task
+type: object
+additionalProperties: false
+x-workflow-guard:
+  kind: segment-task
+  canonical_paths:
+    - project_data/projects/*/episodes/*/segments/tasks/*-SEG*-v*.yaml
+required:
+  - metadata
+  - segment_id
+  - episode_id
+  - duration
+  - key_visual
+  - shot_type
+  - camera_movement
+  - transition_in
+  - transition_out
+  - narrative
+  - characters
+  - action_and_emotion
+  - scene
+  - continuity
+  - asset_hints
+  - risks
+  - pending_items
+  - notes
+properties:
+  metadata:
+    type: object
+    required: [series_id, episode_id, segment_id, version, status, created_at, updated_at, based_on]
+    properties:
+      series_id: {type: string}
+      episode_id: {type: string}
+      segment_id: {type: string}
+      version: {type: string}
+      status: {type: string, enum: [draft, in_review, approved, rejected]}
+      created_at: {type: string}
+      updated_at: {type: string}
+      based_on: {type: object}
+  segment_id: {type: string}
+  episode_id: {type: string}
+  duration: {type: string}
+  key_visual: {type: string}
+  shot_type: {type: string}
+  camera_movement: {type: string}
+  transition_in: {type: string}
+  transition_out: {type: string}
+  narrative: {type: object}
+  characters: {type: array}
+  action_and_emotion: {type: object}
+  scene: {type: object}
+  continuity: {type: object}
+  asset_hints: {type: object}
+  risks: {type: array}
+  pending_items: {type: array}
+  notes: {type: string}

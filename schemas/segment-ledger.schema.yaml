@@ -1,0 +1,36 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+title: segment-ledger
+type: object
+additionalProperties: false
+x-workflow-guard:
+  kind: segment-ledger
+  canonical_paths:
+    - project_data/projects/*/episodes/*/orchestration/segment-ledger-v*.yaml
+required:
+  - project_id
+  - episode_id
+  - generated_at
+  - items
+properties:
+  project_id: {type: string}
+  episode_id: {type: string}
+  generated_at: {type: string}
+  items:
+    type: array
+    items:
+      type: object
+      required: [segment_id, planning_status, asset_precheck_compliance, asset_output_status, asset_business_verdict, asset_compliance_verdict, video_precheck_compliance, video_output_status, video_business_verdict, video_compliance_verdict, blocked_by, can_start_asset, can_start_video]
+      properties:
+        segment_id: {type: string}
+        planning_status: {type: string}
+        asset_precheck_compliance: {type: string}
+        asset_output_status: {type: string}
+        asset_business_verdict: {type: string}
+        asset_compliance_verdict: {type: string}
+        video_precheck_compliance: {type: string}
+        video_output_status: {type: string}
+        video_business_verdict: {type: string}
+        video_compliance_verdict: {type: string}
+        blocked_by: {type: array}
+        can_start_asset: {type: boolean}
+        can_start_video: {type: boolean}

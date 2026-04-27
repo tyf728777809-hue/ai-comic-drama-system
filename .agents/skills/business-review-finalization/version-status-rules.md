@@ -1,0 +1,130 @@
+# 审核版本与状态规则
+
+本文件定义业务审核产物的版本号递增规则和状态取值规则。
+
+---
+
+## 版本号规则
+
+### 格式
+
+版本号格式：`主版本.次版本`（如 `1.0`、`1.1`、`2.0`）
+
+### 递增规则
+
+| 变更类型 | 版本递增 | 示例 | 说明 |
+|---------|---------|------|------|
+| 首次审核 | → 1.0 | — | 第一次审核 |
+| 重审（修改后部分通过） | 次版本 +1 | 1.0 → 1.1 | 修改后重审，结论为 pass 或 pass_with_revisions |
+| 重审（大幅返工后） | 主版本 +1 | 1.0 → 2.0 | fail 后大幅返工重审 |
+| 补充审核 | 次版本 +1 | 1.0 → 1.1 | 新增审核维度或补充检查 |
+
+### 版本号管理规则
+
+1. 每次写入新版本时，必须更新 report_version
+2. 旧版本文件保留，不做删除或覆盖
+3. 文件名中包含版本号：`business-review-report-v1.0.yaml`
+4. 下游引用（主控交接摘要）必须引用具体版本号
+5. 审核报告、修改建议、交接摘要共用同一版本号体系
+
+---
+
+## 状态规则
+
+### 审核报告状态
+
+| 状态 | 含义 | 允许的操作 |
+|------|------|-----------|
+| `draft` | 审核进行中 | 继续审核、补充维度 |
+| `in_review` | 等待主控确认 | 等待主控决策 |
+| `approved` | 已通过审核 | 不可修改，作为最终记录 |
+| `rejected` | 审核未通过 | 进入修改流程 |
+
+### 审核对象状态（被审核产物的状态）
+
+| 审核结论 | 审核对象状态变更 | 审核报告状态 |
+|---------|----------------|-------------|
+| pass | in_review → approved | approved |
+| pass_with_revisions | in_review → 保持 in_review | in_review |
+| fail | in_review → rejected | rejected |
+
+### 状态流转规则
+
+```
+审核对象状态：
+draft → in_review → approved
+                   ↘ rejected → draft → in_review → ...
+
+审核报告状态：
+draft → in_review → approved
+                   ↘ rejected
+```
+
+**流转条件：**
+
+| 转换 | 条件 | 执行者 |
+|------|------|-------|
+| draft → in_review | 审核维度全部检查完毕 | business-review-agent |
+| in_review → approved | verdict = pass | business-review-agent |
+| in_review → rejected | verdict = fail | business-review-agent |
+| 审核对象 rejected → draft | 责任 Agent 开始修改 | 责任 Agent |
+| 审核对象 draft → in_review | 修改完成，重新提交审核 | 责任 Agent |
+
+---
+
+## 多版本并存规则
+
+1. 同一审核对象最多保留最近 3 份审核报告
+2. 超过 3 份的，最早的报告可归档到 `reviews/business/archive/`
+3. 审核报告按版本归档
+4. 主控交接摘要始终引用最新的审核报告版本
+5. 如果最新审核报告不是 approved，上溯到最近的 approved 版本
+
+---
+
+## 变更日志
+
+每份审核报告应在 changelog 中记录变更说明：
+
+```yaml
+changelog:
+  - version: "1.1"
+    date: ""
+    changes:
+      - "重审：修复 DEF-001 和 DEF-002 后重新审核"
+      - "DEF-001 修复确认：角色描述已补充完整"
+      - "DEF-002 修复确认：场景衔接已优化"
+    reason: "pass_with_revisions 修改后重审"
+  - version: "1.0"
+    date: ""
+    changes:
+      - "首次审核"
+    reason: "阶段产物提交业务审核"
+```
+
+---
+
+## 审核报告引用规则
+
+修改建议和主控交接摘要必须引用具体审核报告：
+
+```yaml
+metadata:
+  based_on_report: "BR-script-001"
+  report_version: "1.0"
+  report_verdict: "pass_with_revisions"
+```
+
+如果引用的审核报告版本与当前最新版本不一致，主控需判断是否需要基于最新版本重新审核。
+
+---
+
+## 文件命名规范
+
+| 文件类型 | 命名格式 | 示例 |
+|---------|---------|------|
+| 审核报告 | `business-review-report-{stage}-v{version}.yaml` | `business-review-report-script-v1.0.yaml` |
+| 修改建议 | `revision-advice-{stage}-v{version}.yaml` | `revision-advice-script-v1.0.yaml` |
+| 主控交接摘要 | `business-review-handoff-{stage}-v{version}.yaml` | `business-review-handoff-script-v1.0.yaml` |
+
+存放路径：`project_data/projects/{project_id}/episodes/epXX/reviews/business/`

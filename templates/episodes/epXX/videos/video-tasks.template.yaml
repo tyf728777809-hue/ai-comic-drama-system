@@ -1,0 +1,42 @@
+metadata:
+  series_id: "SER0001"
+  episode_id: "epXX"
+  version: "1.0"
+  status: "draft"
+  created_at: "2026-04-25T00:00:00+08:00"
+  updated_at: "2026-04-25T00:00:00+08:00"
+  based_on:
+    segments: "project_data/projects/{project_id}/episodes/epXX/segments/segments-v1.0.yaml"
+    video_prompts: "project_data/projects/{project_id}/episodes/epXX/videos/video-prompts-v1.0.yaml"
+summary: {}
+tasks:
+  - task_id: "VTASK_SEG01"
+    segment_id: "SEG01"
+    episode_id: "epXX"
+    duration: "15s"
+    planning_status: "approved"
+    input_strategy: "first_frame_only"
+    strategy_reason: ""
+    inputs: {}
+    prompt: {}
+    generation_params: {}
+    status: "draft"
+    quality_check: "pending"
+    retry_count: 0
+    max_retries: 3
+    final_attempt: false
+    connects_from: ""
+    connects_to: ""
+    continuity_notes: ""
+    risks:
+      - ""
+    notes: ""
+continuity_map: []
+changelog:
+  - version: "1.0"
+    date: "2026-04-25"
+    changes:
+      - "初始视频任务模板"
+    reason: "项目初始化"
+pending_items:
+  - ""

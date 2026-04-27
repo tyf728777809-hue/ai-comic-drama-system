@@ -1,0 +1,151 @@
+---
+name: asset-finalization-and-handoff
+description: 资产定稿与交接方法包。负责将成熟资产结果整理为正式文件、输出确认前复盘摘要、生成视频生产阶段交接摘要、管理版本与状态。适用于资产规划完成后的定稿和交接。
+---
+
+# Skill：asset-finalization-and-handoff
+
+## 适用场景
+
+当 asset-production-agent 判断资产规划和 prompt 已基本成熟、准备进入定稿和交接时使用本 skill。
+
+典型触发条件：
+- 资产风险检查无 fail 项
+- 用户确认不再需要大幅修改资产规划
+- 图片已生成并需要归档整理
+- 需要为视频生产阶段准备交接材料
+
+**不适用**：还在做资产规划、生成 prompt、做风险检查 → 使用 `asset-planning-and-prompting`
+
+---
+
+## 核心目标
+
+1. 将成熟资产规划和结果整理为固定格式的正式文件
+2. 为用户输出可确认的复盘摘要
+3. 为视频生产阶段输出完整的交接摘要
+4. 正确管理版本号和确认状态
+
+---
+
+## 输入
+
+| 输入 | 路径 | 用途 |
+|------|------|------|
+| 当前资产清单 | `project_data/projects/{project_id}/episodes/epXX/assets/asset-manifest-vX.yaml` | 定稿整理的基准 |
+| 当前 prompt 文件 | `project_data/projects/{project_id}/episodes/epXX/assets/asset-prompts-vX.yaml` | 定稿参考 |
+| 图片生成结果 | `project_data/projects/{project_id}/episodes/epXX/assets/images/` | 归档整理 |
+| 资产风险检查结果 | 清单文件内 risks 字段 | 确认无阻断问题 |
+| 用户反馈 | 聊天上下文 | 确认是否可以定稿 |
+
+---
+
+## 输出
+
+| 产物 | 输出路径 | 说明 |
+|------|---------|------|
+| 正式资产索引 | `project_data/projects/{project_id}/episodes/epXX/assets/asset-index-vX.yaml` | 资产总索引 |
+| 正式资产结果归档 | `project_data/projects/{project_id}/episodes/epXX/assets/asset-archive-vX.yaml` | 生成结果归档 |
+| 确认前复盘摘要 | `project_data/projects/{project_id}/episodes/epXX/assets/asset-review-summary-vX.yaml` | 给用户确认 |
+| 视频生产交接摘要 | `project_data/projects/{project_id}/episodes/epXX/assets/handoff-asset-to-video-vX.yaml` | 给视频阶段 |
+
+---
+
+## 执行步骤
+
+### 第 1 步：读取当前最新资产版本
+
+读取 `project_data/projects/{project_id}/episodes/epXX/` 下的最新资产清单和 prompt 文件。
+读取已生成的图片结果目录。
+确认当前版本号和 status。
+
+### 第 2 步：判断是否具备定稿条件
+
+检查以下条件是否全部满足：
+
+| 条件 | 标准 |
+|------|------|
+| 资产风险检查 | risks 中无 fail 项 |
+| 资产完整性 | 每个 segment 都有首帧和尾帧 |
+| 角色一致性 | 同角色跨 segment 外观一致 |
+| 图片质量 | 所有已生成图片 quality_check = pass |
+| 待确认项 | 无阻断型待确认项 |
+| 用户确认 | 用户明确表示可以定稿 |
+
+如果条件不满足 → 返回 `asset-planning-and-prompting` 继续修改。
+如果条件满足 → 继续定稿。
+
+### 第 3 步：整理正式资产索引
+
+使用 `asset-index-template.md` 模板整理正式资产索引：
+- 汇总所有资产编号、类型、所属 segment、状态
+- 标注复用关系
+- 标注关键资产
+- 统计复用率
+
+将资产索引写入 `asset-index-vX.yaml`，status = in_review。
+
+### 第 4 步：整理正式资产结果归档
+
+使用 `asset-result-template.md` 模板整理结果归档：
+- 每个资产对应的图片文件路径
+- 生成参数记录
+- 质量检查结果
+- 复用标记
+
+将结果归档写入 `asset-archive-vX.yaml`。
+
+### 第 5 步：生成确认前复盘摘要
+
+使用 `asset-review-summary-template.md` 模板生成复盘摘要：
+- 已确认的资产清单
+- 待确认内容
+- 主要风险提示
+- 确认后的下一步
+
+将复盘摘要写入 `asset-review-summary-vX.yaml`。
+
+### 第 6 步：生成视频生产阶段交接摘要
+
+使用 `video-handoff-template.md` 模板生成交接摘要：
+- 已确认资产清单
+- 关键资产和普通资产区分
+- 可直接进入视频阶段的资产
+- 存在连续性风险的资产
+- 仍待确认的资产
+
+将交接摘要写入 `handoff-asset-to-video-vX.yaml`。
+
+### 第 7 步：更新版本号与状态字段
+
+参照 `version-status-rules.md`：
+- 递增版本号
+- 更新 status 为当前正确状态
+- 更新 updated_at 时间戳
+- 在 metadata 中记录变更说明
+
+---
+
+## 约束边界
+
+本 skill **不允许**：
+- 继续大规模改动资产规划
+- 越权做视频生产阶段工作
+- 直接调用视频生成工具
+- 修改已 approved 的上游文件
+
+本 skill **允许**：
+- 读取所有项目文件
+- 写入资产索引、结果归档、复盘摘要、交接摘要
+- 更新版本号和状态字段
+
+---
+
+## 完成标准
+
+执行本 skill 后，必须能明确回答：
+
+1. **定稿条件**：当前资产是否已达到定稿条件
+2. **版本号**：当前正式版本号是什么
+3. **确认状态**：当前 status 是什么
+4. **交接条件**：是否已具备交给视频生产阶段的条件

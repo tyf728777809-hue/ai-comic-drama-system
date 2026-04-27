@@ -2,32 +2,30 @@
 
 ## 系统架构
 
-本系统基于 Claude Code 的 Agent + Skill 架构，实现从创意到成片的完整漫剧生产流水线。
+本系统基于 Codex 的 Agent + Skill 架构，实现从创意到成片的完整漫剧生产流水线。
 
-```
-用户 → 主控 Agent → 调度专业 Agent → 各阶段生产 → 审核 → 推进/回退
+```text
+用户 → 主控 Agent → 调度专业 Agent → 各阶段生产 → 审核 → 推进 / 回退
 ```
 
----
+系统以 `.agents/` 作为唯一 canonical 规则源，所有正式产物通过 `schemas/` 和 `tools/workflow_guard.py` 进行校验。
 
 ## Agent 一览表
 
 | # | Agent | 文件 | 职责 |
 |---|-------|------|------|
-| 1 | producer-agent | `.claude/agents/producer-agent.md` | 总控调度、阶段流转、审核门禁、回退控制 |
-| 2 | creative-development-agent | `.claude/agents/creative-development-agent.md` | 创意访谈、方向收敛、创意设定输出 |
-| 3 | script-development-agent | `.claude/agents/script-development-agent.md` | 梗概、分集、单集剧本、改稿 |
-| 4 | production-planning-agent | `.claude/agents/production-planning-agent.md` | 15 秒分段、segment 任务单、衔接设计 |
-| 5 | asset-production-agent | `.claude/agents/asset-production-agent.md` | 资产清单、复用判断、生图 prompt、图片归档 |
-| 6 | video-production-agent | `.claude/agents/video-production-agent.md` | 视频 prompt、首尾帧策略、视频生成与归档 |
-| 7 | business-review-agent | `.claude/agents/business-review-agent.md` | 阶段质量判断、放行或退回 |
-| 8 | compliance-review-agent | `.claude/agents/compliance-review-agent.md` | 版权、人物权、敏感内容、平台限制等合规判断 |
-
----
+| 1 | producer-agent | `.agents/agents/producer-agent.md` | 总控调度、阶段流转、审核门禁、回退控制 |
+| 2 | creative-development-agent | `.agents/agents/creative-development-agent.md` | 创意访谈、方向收敛、创意设定输出 |
+| 3 | script-development-agent | `.agents/agents/script-development-agent.md` | 梗概、分集、单集剧本、改稿 |
+| 4 | production-planning-agent | `.agents/agents/production-planning-agent.md` | 15 秒分段、segment 任务单、衔接设计 |
+| 5 | asset-production-agent | `.agents/agents/asset-production-agent.md` | 资产清单、复用判断、生图 prompt、图片归档 |
+| 6 | video-production-agent | `.agents/agents/video-production-agent.md` | 视频 prompt、首尾帧策略、视频生成与归档 |
+| 7 | business-review-agent | `.agents/agents/business-review-agent.md` | 阶段质量判断、放行或退回 |
+| 8 | compliance-review-agent | `.agents/agents/compliance-review-agent.md` | 版权、人物权、敏感内容、平台限制等合规判断 |
 
 ## Skill 一览表
 
-每个 Agent 包含 2 个 Skills（一个负责"执行"，一个负责"定稿交接"）：
+每个 Agent 包含 2 个 Skills（一个负责执行，一个负责定稿 / 交接）：
 
 | Agent | Skill 1（执行） | Skill 2（定稿交接） |
 |-------|----------------|-------------------|
@@ -40,21 +38,15 @@
 | business-review-agent | business-evaluation-and-decision | business-review-finalization |
 | compliance-review-agent | compliance-risk-evaluation | compliance-finalization-and-handoff |
 
----
+## 阶段流转
 
-## 阶段流转图
-
-```
-[创意定义] ──→ [剧本开发] ──→ [生产规划] ──→ [资产生产] ──→ [视频生产]
-    ↑              ↑              ↑              ↑              ↑
-    └── 业务+合规   └── 业务+合规   └── 业务+合规   └── 业务+合规   └── 业务+合规
-        审核           审核           审核           审核           审核
+```text
+[创意定义] → [剧本开发] → [生产规划] → [资产生产] → [视频生产]
 ```
 
-前三阶段（创意→剧本→规划）严格串行。
-后两阶段（资产→视频）允许有限并行，前提是上游已 approved。
-
----
+- 前三阶段严格串行，必须整阶段 approved 才能进入下游。
+- 后两阶段按 segment 级推进：不同 segment 可并行，但每个 segment 仍按“规划 → 资产 → 审核 → 视频 → 审核”顺序闭环。
+- 合规审核拥有一票否决权。
 
 ## 审核门禁矩阵
 
@@ -62,62 +54,70 @@
 |---------|---------|---------|
 | 创意设定完成后 | 必须 | 必须 |
 | 剧本完成后 | 必须 | 必须 |
-| segment 总表完成后 | 必须 | — |
+| segment 总表完成后 | 必须 | 必须 |
 | 资产生成前 | — | 必须 |
 | 资产生成后 | 必须 | 必须 |
 | 视频生成前 | — | 必须 |
 | 视频生成后 | 必须 | 必须 |
 
-合规审核具有一票否决权：合规 fail 时，即使业务 pass，也不得推进。
+审核报告的 `report_status` 仅表示报告文件是否整理完成；推进是否放行只看 `conclusion.verdict` 与 `gate_decision`。
 
----
+## 目录约定
 
-## 文件目录约定
-
-```
+```text
 漫剧生产系统/
-├── CLAUDE.md                          # 项目总规则
-├── .claude/
-│   ├── agents/                        # 8 个 Agent 定义
-│   ├── skills/                        # 16 个 Skills（每个含 SKILL.md + supporting files）
-│   └── settings.json                  # 项目配置
+├── README.md
+├── AGENTS.md
+├── .agents/
+│   ├── agents/
+│   ├── skills/
+│   └── settings.json
+├── schemas/
+├── templates/
+├── tools/
+│   └── workflow_guard.py
 ├── project_data/
-│   ├── series/                        # 系列级设定、创意 Bible、访谈记录
-│   └── episodes/epXX/                 # 单集数据
-│       ├── script/                    # 剧本文件
-│       ├── segments/                  # segment 总表和单段任务
-│       ├── assets/images/             # 图片资产
-│       ├── videos/                    # 视频文件
-│       └── reviews/
-│           ├── business/              # 业务审核报告
-│           └── compliance/            # 合规审核报告
-└── docs/                              # 说明文档
+│   ├── series/
+│   │   ├── reviews/
+│   │   │   ├── business/
+│   │   │   └── compliance/
+│   │   └── ...
+│   └── episodes/epXX/
+│       ├── script/
+│       ├── segments/
+│       │   └── tasks/
+│       ├── assets/
+│       │   └── images/
+│       ├── videos/
+│       ├── reviews/
+│       │   ├── business/
+│       │   └── compliance/
+│       └── orchestration/
+└── docs/
 ```
 
----
+## 正式产物命名
 
-## 状态体系
+| 阶段 | 正式文件 |
+|------|---------|
+| 创意定义 | `project_data/projects/{project_id}/series/creative-bible-v{version}.yaml` |
+| 剧本开发 | `project_data/projects/{project_id}/series/synopsis-v{version}.yaml`、`project_data/projects/{project_id}/series/episode-plan-v{version}.yaml`、`project_data/projects/{project_id}/episodes/epXX/script/script-v{version}.yaml` |
+| 生产规划 | `project_data/projects/{project_id}/episodes/epXX/segments/segments-v{version}.yaml`、`project_data/projects/{project_id}/episodes/epXX/segments/tasks/{episode_id}-SEG{NN}-v{version}.yaml` |
+| 资产生产 | `project_data/projects/{project_id}/episodes/epXX/assets/asset-manifest-v{version}.yaml`、`asset-prompts-v{version}.yaml`、`asset-index-v{version}.yaml`、`asset-archive-v{version}.yaml` |
+| 视频生产 | `project_data/projects/{project_id}/episodes/epXX/videos/video-prompts-v{version}.yaml`、`video-tasks-v{version}.yaml`、`video-tasks-final-v{version}.yaml`、`video-archive-v{version}.yaml` |
+| 调度 | `project_data/projects/{project_id}/episodes/epXX/orchestration/orchestration-result-v{version}.yaml`、`segment-ledger-v{version}.yaml` |
 
-所有正式产物统一使用 4 状态：
+## 校验与兼容
 
-| 状态 | 含义 | 可否进入下一阶段 |
-|------|------|---------------|
-| `draft` | 初稿，编辑中 | 不可 |
-| `in_review` | 已提交审核 | 不可 |
-| `approved` | 审核通过 | 可以 |
-| `rejected` | 审核退回 | 不可，需回退修改 |
+- `tools/workflow_guard.py validate`：校验目录、命名、schema、状态流转和引用关系。
+- `tools/workflow_guard.py status`：只读扫描项目文件，输出 episode 级调度结论和 segment ledger。
+- `tools/workflow_guard.py sync-compat`：从 `.agents/` 生成兼容镜像和兼容说明文件。
 
-版本号格式：`主版本.次版本`（如 1.0、1.1、2.0）
+现有历史样例保留用于迁移提示，不作为 canonical 正式产物。
 
----
+## 助手型使用入口
 
-## 审核结论
-
-| 审核类型 | 结论 | 含义 |
-|---------|------|------|
-| 业务审核 | pass | 质量达标，可推进 |
-| 业务审核 | pass_with_revisions | 质量基本达标，需修改后放行 |
-| 业务审核 | fail | 质量不达标，需退回 |
-| 合规审核 | pass | 合规无风险 |
-| 合规审核 | conditional_pass | 存在中低风险，附条件放行 |
-| 合规审核 | fail | 存在高风险，必须退回 |
+- 日常起步看 [README.md](../README.md)
+- 直接开项目看 [docs/quick-start.md](quick-start.md)
+- 明确人机边界看 [docs/assistant-workflow-sop.md](assistant-workflow-sop.md)
+- 复制 starter files 看 [templates/README.md](../templates/README.md)

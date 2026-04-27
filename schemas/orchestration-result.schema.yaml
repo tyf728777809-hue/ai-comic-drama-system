@@ -1,0 +1,100 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+title: orchestration-result
+type: object
+additionalProperties: false
+x-workflow-guard:
+  kind: orchestration-result
+  canonical_paths:
+    - project_data/projects/*/episodes/*/orchestration/orchestration-result-v*.yaml
+required:
+  - timestamp
+  - project_id
+  - series_id
+  - episode_id
+  - current_stage
+  - stage_status
+  - detection_basis
+  - current_goal
+  - available_inputs
+  - missing_deliverables
+  - missing_reviews
+  - next_agent
+  - next_skill
+  - next_action
+  - needs_business_review
+  - needs_compliance_review
+  - can_advance
+  - advance_reason
+  - parallel_allowed
+  - parallel_tasks
+  - parallel_block_reason
+  - blockers
+  - next_steps
+properties:
+  timestamp: {type: string}
+  project_id: {type: string}
+  series_id: {type: string}
+  episode_id: {type: string}
+  current_stage: {type: string}
+  stage_status: {type: string}
+  detection_basis: {type: string}
+  current_goal: {type: string}
+  available_inputs:
+    type: array
+    items:
+      type: object
+      required: [name, path, version, status]
+      properties:
+        name: {type: string}
+        path: {type: string}
+        version: {type: string}
+        status: {type: string}
+  missing_deliverables:
+    type: array
+    items:
+      type: object
+      required: [name, required_by, priority]
+      properties:
+        name: {type: string}
+        required_by: {type: string}
+        priority: {type: string}
+  missing_reviews:
+    type: array
+    items:
+      type: object
+      required: [review_type, target, phase, required_before, verdict]
+      properties:
+        review_type: {type: string}
+        target: {type: string}
+        phase: {type: string}
+        required_before: {type: string}
+        verdict: {type: string}
+  next_agent: {type: string}
+  next_skill: {type: string}
+  next_action: {type: string}
+  needs_business_review: {type: boolean}
+  needs_compliance_review: {type: boolean}
+  can_advance: {type: boolean}
+  advance_reason: {type: string}
+  parallel_allowed: {type: boolean}
+  parallel_tasks: {type: array}
+  parallel_block_reason: {type: string}
+  blockers:
+    type: array
+    items:
+      type: object
+      required: [description, type, resolution]
+      properties:
+        description: {type: string}
+        type: {type: string}
+        resolution: {type: string}
+  next_steps:
+    type: array
+    items:
+      type: object
+      required: [step, action, responsible_agent, estimated_output]
+      properties:
+        step: {type: integer}
+        action: {type: string}
+        responsible_agent: {type: string}
+        estimated_output: {type: string}

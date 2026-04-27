@@ -1,0 +1,27 @@
+timestamp: "2026-04-25T00:00:00+08:00"
+project_id: "PROJECT_ID"
+series_id: "SER0001"
+episode_id: "epXX"
+current_stage: "创意定义"
+stage_status: "进行中"
+detection_basis: ""
+current_goal: ""
+available_inputs:
+  - name: ""
+    path: ""
+    version: ""
+    status: ""
+missing_deliverables: []
+missing_reviews: []
+next_agent: ""
+next_skill: ""
+next_action: ""
+needs_business_review: false
+needs_compliance_review: false
+can_advance: false
+advance_reason: ""
+parallel_allowed: false
+parallel_tasks: []
+parallel_block_reason: ""
+blockers: []
+next_steps: []

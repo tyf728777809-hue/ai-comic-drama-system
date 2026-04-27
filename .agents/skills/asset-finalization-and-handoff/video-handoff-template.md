@@ -1,0 +1,145 @@
+# 视频生产阶段交接摘要模板
+
+本文件定义资产阶段向视频生产阶段交接的固定格式。
+
+---
+
+## 设计原则
+
+- 交接摘要应让视频生产 Agent 不需要读所有图片就能开始工作
+- 重点说明"有哪些资产""哪些可用""哪些有风险"
+- 为视频 prompt 提供直接可用的信息
+
+---
+
+## 模板
+
+```yaml
+# === 视频生产阶段交接摘要 ===
+# 由 asset-finalization-and-handoff skill 生成
+
+metadata:
+  series_id: ""
+  episode_id: "ep01"
+  asset_version: "1.0"
+  handoff_version: "1.0"
+  generated_at: ""
+  handoff_from: "asset-production-agent"
+  handoff_to: "video-production-agent"
+
+# === 资产总览 ===
+asset_overview:
+  total_assets: 0
+  approved_assets: 0
+  video_ready: true         # 所有资产是否都可进入视频阶段
+  key_warning: ""           # 如果不是全部 ready，主要原因
+
+# === Segment 资产清单 ===
+segment_assets:
+  - segment_id: "SEG01"
+    duration: "15s"
+    first_frame:
+      asset_id: ""
+      file_path: ""
+      description: ""       # 首帧画面描述
+      transition_in: ""     # 入场衔接方式
+    last_frame:
+      asset_id: ""
+      file_path: ""
+      description: ""
+      transition_out: ""    # 出场衔接方式
+    characters:
+      - asset_id: ""
+        character_name: ""
+        file_path: ""
+        pose: ""
+        expression: ""
+    background:
+      asset_id: ""
+      file_path: ""
+      location: ""
+      time_of_day: ""
+    props:
+      - asset_id: ""
+        file_path: ""
+        description: ""
+    video_ready: true       # 该 segment 资产是否齐全可进入视频
+    missing: []             # 缺失的资产
+
+# === 关键资产 ===
+key_assets:
+  - asset_id: ""
+    type: ""
+    reason: "关键"          # 为什么是关键资产
+    file_path: ""
+    usage_notes: ""         # 使用注意事项
+
+# === 可直接进入视频阶段的资产 ===
+video_ready_assets:
+  - asset_id: ""
+    segment_id: ""
+    type: ""
+    file_path: ""
+
+# === 存在连续性风险的资产 ===
+continuity_risks:
+  - from_segment: ""
+    to_segment: ""
+    risk_type: ""           # character_drift | scene_inconsistency | lighting_change | other
+    description: ""
+    suggestion: ""          # 视频阶段的缓解建议
+
+# === 角色外观参考 ===
+character_references:
+  - character_name: ""
+    visual_keywords: ""     # 外观关键词（从 creative-bible）
+    reference_assets: []    # 角色图资产 ID 列表
+    consistency_notes: ""   # 一致性注意事项
+
+# === 场景风格参考 ===
+style_reference:
+  visual_style: ""         # 画风流派
+  color_palette: ""        # 色彩方案
+  lighting_notes: ""       # 光影说明
+  consistency_notes: ""    # 风格一致性注意事项
+
+# === 生产风险提示 ===
+production_risks:
+  - risk: ""
+    severity: ""            # 高 | 中 | 低
+    affected_segments: []
+    mitigation: ""
+
+# === 版本信息 ===
+version_info:
+  asset_version: ""
+  handoff_version: ""
+  status: "draft"
+  pending_items: []
+```
+
+---
+
+## 使用规则
+
+1. 视频生产 Agent 应先读本交接摘要，再按需读取具体图片文件
+2. segment_assets 中 video_ready = false 的 segment 不可启动视频生成
+3. continuity_risks 中的风险应在视频 prompt 中做相应处理
+4. character_references 提供角色一致性的关键参考
+5. style_reference 提供全局风格一致性参考
+6. first_frame 和 last_frame 的 file_path 是视频生成的直接输入
+7. 每个 segment 的 first_frame 必须有实际图片文件，这是视频生成的硬性依赖
+
+---
+
+## 与视频生产阶段的边界
+
+资产阶段交接后，以下工作由视频阶段负责：
+- 视频 prompt 编写
+- 首尾帧策略设计
+- 视频生成和结果归档
+
+资产阶段不负责：
+- 视频内容的具体设计
+- 视频生成参数调优
+- 视频质量检查

@@ -1,0 +1,103 @@
+# 阶段检测规则
+
+本文件定义如何根据项目文件判断当前所处阶段。
+
+## 检测原则
+
+1. 检测基于文件存在性 + 正式产物 `metadata.status` + 审核 `conclusion.verdict`
+2. 如果文件不存在，视为该阶段未完成
+3. `report_status` 不是推进依据
+4. 阶段判断从后往前检查：先检查视频，再检查资产，再检查规划、剧本、创意
+5. 阶段 4/5 额外生成 segment 级视图，不以整集单一状态代替
+
+## 阶段判定流程
+
+### 检查 1：项目是否为空
+
+- 如果 `project_data/projects/{project_id}/series/` 和 `project_data/projects/{project_id}/episodes/` 均无正式产物 → 阶段：未启动
+
+### 检查 2：创意定义阶段
+
+读取 `project_data/projects/{project_id}/series/creative-bible-v*.yaml`：
+
+| 条件 | 判定 |
+|------|------|
+| 文件不存在 | 创意定义（未开始） |
+| `metadata.status = draft` | 创意定义（进行中） |
+| `metadata.status = in_review` | 创意定义（审核中） |
+| `metadata.status = rejected` | 创意定义（已退回） |
+| `metadata.status = approved` 且业务 / 合规 verdict 均放行 | 创意定义完成，继续检查下游 |
+
+创意阶段最小完成条件：
+- `project_positioning.title` 已填写
+- `core_hook.logline` 已填写
+- `protagonist.name` 已填写
+- `worldbuilding.setting` 已填写
+- `production_params.episode_duration` 已填写
+- `pending_items` 无 P0
+
+### 检查 3：剧本开发阶段
+
+读取 `project_data/projects/{project_id}/episodes/epXX/script/script-v*.yaml`：
+
+| 条件 | 判定 |
+|------|------|
+| 文件不存在 | 剧本开发（未开始） |
+| `metadata.status = draft` | 剧本开发（进行中） |
+| `metadata.status = in_review` | 剧本开发（审核中） |
+| `metadata.status = rejected` | 剧本开发（已退回） |
+| `metadata.status = approved` 且业务 / 合规 verdict 均放行 | 剧本开发完成，继续检查下游 |
+
+剧本阶段最小完成条件：
+- `episode.synopsis` 已填写
+- `scenes` 至少有 1 个场景
+- 每个场景包含 `action`、`emotion`、`estimated_duration`
+- `pending_items` 无 P0
+
+### 检查 4：生产规划阶段
+
+读取 `project_data/projects/{project_id}/episodes/epXX/segments/segments-v*.yaml`：
+
+| 条件 | 判定 |
+|------|------|
+| 文件不存在 | 生产规划（未开始） |
+| `metadata.status = draft` | 生产规划（进行中） |
+| `metadata.status = in_review` | 生产规划（审核中） |
+| `metadata.status = rejected` | 生产规划（已退回） |
+| `metadata.status = approved` 且业务 / 合规 verdict 均放行 | 生产规划完成，继续检查下游 |
+
+规划阶段最小完成条件：
+- `segments` 至少有 1 个 segment
+- 每个 segment 包含 `key_visual`、`shot_type`、`camera_movement`
+- 每个 segment 包含 `transition_in`、`transition_out`
+- `summary.total_segments` 已填写
+- `pending_items` 无 P0
+
+### 检查 5：资产生产阶段
+
+读取 `project_data/projects/{project_id}/episodes/epXX/assets/asset-archive-v*.yaml` 和当前集审核结果：
+
+| 条件 | 判定 |
+|------|------|
+| 正式资产文件不存在 | 资产生产（未开始） |
+| 存在资产正式文件但未全部放行 | 资产生产（进行中 / 审核中） |
+| 当前集至少一个 segment `can_start_asset = true` | 资产生产（可推进） |
+| 全部可生成 segment 的资产均 approved，且生成后业务 / 合规 verdict 放行 | 资产生产完成，继续检查下游 |
+
+### 检查 6：视频生产阶段
+
+读取 `project_data/projects/{project_id}/episodes/epXX/videos/video-archive-v*.yaml` 和当前集审核结果：
+
+| 条件 | 判定 |
+|------|------|
+| 正式视频文件不存在 | 视频生产（未开始） |
+| 存在视频正式文件但未全部放行 | 视频生产（进行中 / 审核中） |
+| 当前集至少一个 segment `can_start_video = true` | 视频生产（可推进） |
+| 全部可启动 segment 的视频均 approved，且生成后业务 / 合规 verdict 放行 | 视频生产完成 |
+
+## 多集项目处理
+
+- 系列级创意是共享上游
+- 每集独立判断剧本、规划、资产、视频状态
+- 资产 / 视频阶段使用 segment ledger 而不是整集单一布尔值
+- 主控按集输出调度结论

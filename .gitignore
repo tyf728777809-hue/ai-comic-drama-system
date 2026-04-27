@@ -5,6 +5,10 @@ project_data/episodes/*/assets/images/*.webp
 project_data/episodes/*/videos/*.mp4
 project_data/episodes/*/videos/*.mov
 
+# Actual project outputs. Keep production system schemas/templates in git,
+# but do not publish in-progress series, scripts, assets, reviews, or videos.
+project_data/projects/
+
 # OS files
 .DS_Store
 Thumbs.db
@@ -23,3 +27,8 @@ credentials/
 *.p12
 secrets.*
 secrets/
+
+# Python
+__pycache__/
+.pytest_cache/
+tools/_vendor/
