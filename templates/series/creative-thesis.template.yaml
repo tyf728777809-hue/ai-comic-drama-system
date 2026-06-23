@@ -1,0 +1,35 @@
+metadata:
+  project_id: "NEW"
+  version: "1.0"
+  status: "draft"
+  created_at: "2026-05-31T00:00:00+08:00"
+  updated_at: "2026-05-31T00:00:00+08:00"
+thesis:
+  title: "作品名"
+  logline: "一句话故事。"
+  theme: "主题。"
+  anti_theme: "反主题。"
+  emotional_promise: "观众情绪承诺。"
+  non_negotiables:
+    - "不可妥协项。"
+  forbidden_cliches:
+    - "禁用套路。"
+audience:
+  primary_viewer: "目标观众。"
+  first_30_seconds_hook: "前 30 秒钩子。"
+  why_continue: "观众继续看的理由。"
+characters:
+  - character_id: "CHAR_01"
+    name: "角色名"
+    desire: "欲望"
+    fear: "恐惧"
+    false_belief: "错误信念"
+    cost: "代价"
+quality_bar:
+  artistic_standard: "艺术标准。"
+  audience_standard: "观众标准。"
+story_kill_pass:
+  verdict: "revise"
+  reason: "尚未正式放行。"
+pending_items:
+  - "待确认项。"

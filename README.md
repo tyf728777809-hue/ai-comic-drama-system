@@ -1,16 +1,22 @@
-# AI 漫剧生产助手
+# V2 AI 影像生产助手
 
-这不是无人值守自动生产线，而是一套给你和 Codex 协作使用的漫剧生产助手系统。
+这是一套给你和 Codex 协作使用的 AI 影像生产系统。它不是自动生成成片的流水线，而是一个轻量、高标准的 AI 电影工作室：帮助你把创意、剧本、镜头、视觉资产和 Seedance 2.0 手工生成包整理到可执行状态。
 
-它覆盖 5 个生产阶段、两条审核线、正式文件命名、schema 校验、状态扫描和兼容镜像。你负责拍板，助手负责按规则产出、整理、复核和提醒门禁。
+## 当前主流程
+
+1. `story-agent`：作品灵魂、剧本、剧本医生、对白去 AI 味。
+2. `director-agent`：按戏剧动作拆镜头，设计表演、镜头和声音意图。
+3. `visual-asset-agent`：锁定视觉风格、角色、服装、场景和资产。
+4. `seedance-package-agent`：生成 Seedance 2.0 音画一体任务包。
+5. `music-agent`：生成 Suno/Sono 音乐任务卡和候选记录。
 
 ## 入口
 
 - 总规则：[AGENTS.md](AGENTS.md)
-- 架构总览：[docs/system-overview.md](docs/system-overview.md)
-- 快速开跑：[docs/quick-start.md](docs/quick-start.md)
-- 人机协作 SOP：[docs/assistant-workflow-sop.md](docs/assistant-workflow-sop.md)
-- Starter files：[templates/README.md](templates/README.md)
+- 系统总览：[docs/system-overview.md](docs/system-overview.md)
+- 快速开始：[docs/quick-start.md](docs/quick-start.md)
+- 协作 SOP：[docs/assistant-workflow-sop.md](docs/assistant-workflow-sop.md)
+- 模板说明：[templates/README.md](templates/README.md)
 
 ## 日常命令
 
@@ -21,15 +27,9 @@ python3 tools/workflow_guard.py sync-compat
 python3 -m unittest tests.test_workflow_guard
 ```
 
-## 推荐使用方式
+## 关键边界
 
-1. 从 `templates/` 复制当前阶段的 starter YAML 到 `project_data/`
-2. 让助手按对应 Agent / Skill 补内容
-3. 正式文件写完后跑 `validate`
-4. 审核文件补齐后跑 `status`
-5. 只在放行 verdict 明确时进入下一阶段
-
-## 适合与不适合
-
-- 适合：助手式生产、阶段门禁、审核留痕、项目复盘
-- 不适合：无人值守自动推进、自动跳阶段、自动外部生成
+- Seedance 2.0 负责视频和声音一体生成。
+- 系统不接入 Seedance API，只交付手工生成包。
+- 不做独立配音，不做 lipsync，不做剪辑评审。
+- Suno/Sono 只做音乐候选，不做对白。

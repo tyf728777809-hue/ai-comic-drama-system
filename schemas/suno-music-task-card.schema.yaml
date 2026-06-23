@@ -1,0 +1,25 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+title: suno-music-task-card
+type: object
+additionalProperties: false
+x-workflow-guard:
+  kind: suno-music-task-card
+  canonical_paths:
+    - project_data/projects/*/episodes/*/music/suno-music-task-card-v*.yaml
+required: [metadata, briefs, candidates, music_sync_notes, pending_items]
+properties:
+  metadata:
+    type: object
+    required: [project_id, episode_id, version, status, created_at, updated_at, based_on]
+    properties:
+      project_id: {type: string}
+      episode_id: {type: string}
+      version: {type: string}
+      status: {type: string, enum: [draft, in_review, approved, rejected]}
+      created_at: {type: string}
+      updated_at: {type: string}
+      based_on: {type: object}
+  briefs: {type: array}
+  candidates: {type: array}
+  music_sync_notes: {type: array}
+  pending_items: {type: array}

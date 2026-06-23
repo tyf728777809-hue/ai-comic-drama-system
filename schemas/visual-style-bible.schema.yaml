@@ -1,0 +1,28 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+title: visual-style-bible
+type: object
+additionalProperties: false
+x-workflow-guard:
+  kind: visual-style-bible
+  canonical_paths:
+    - project_data/projects/*/episodes/*/assets/visual-style-bible-v*.yaml
+required: [metadata, look, characters, wardrobe, locations, props, continuity_rules, pending_items]
+properties:
+  metadata:
+    type: object
+    required: [project_id, episode_id, version, status, created_at, updated_at, based_on]
+    properties:
+      project_id: {type: string}
+      episode_id: {type: string}
+      version: {type: string}
+      status: {type: string, enum: [draft, in_review, approved, rejected]}
+      created_at: {type: string}
+      updated_at: {type: string}
+      based_on: {type: object}
+  look: {type: object}
+  characters: {type: array}
+  wardrobe: {type: array}
+  locations: {type: array}
+  props: {type: array}
+  continuity_rules: {type: array}
+  pending_items: {type: array}

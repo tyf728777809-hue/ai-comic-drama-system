@@ -1,35 +1,24 @@
 metadata:
-  series_id: "SER0001"
-  episode_id: "epXX"
+  project_id: "NEW"
+  episode_id: "ep01"
   version: "1.0"
   status: "draft"
-  created_at: "2026-04-25T00:00:00+08:00"
-  updated_at: "2026-04-25T00:00:00+08:00"
+  created_at: "2026-05-31T00:00:00+08:00"
+  updated_at: "2026-05-31T00:00:00+08:00"
   based_on:
-    segments: "project_data/projects/{project_id}/episodes/epXX/segments/segments-v1.0.yaml"
-    asset_manifest: "project_data/projects/{project_id}/episodes/epXX/assets/asset-manifest-v1.0.yaml"
-summary: {}
+    visual_style_bible: "project_data/projects/NEW/episodes/ep01/assets/visual-style-bible-v1.0.yaml"
 assets:
-  - asset_id: "ASSET_epXX_SEG01_01"
-    type: "character"
-    segment_id: "SEG01"
-    episode_id: "epXX"
-    description: ""
-    purpose: ""
-    source: "generate"
-    reuse_from: ""
-    prompt_ref: "APROMPT_epXX_SEG01_01"
-    result_file: ""
-    quality_check: ""
+  - asset_id: "AST_SH001_FF"
+    asset_type: "first_frame"
+    role: "SH001 首帧"
+    path: "project_data/projects/NEW/episodes/ep01/assets/images/AST_SH001_FF.png"
+    prompt_summary: "首帧生图 prompt 摘要。"
+    reusable: false
     status: "draft"
-reuse_map: []
-segment_coverage: []
-key_assets: []
-changelog:
-  - version: "1.0"
-    date: "2026-04-25"
-    changes:
-      - "初始资产索引模板"
-    reason: "项目初始化"
+shot_coverage:
+  - shot_id: "SH001"
+    required_assets:
+      - "AST_SH001_FF"
+    is_complete: false
 pending_items:
-  - ""
+  - "待确认项。"

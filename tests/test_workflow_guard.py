@@ -9,7 +9,6 @@ import yaml
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SAMPLE_PROJECT_ID = "SER20260424-001"
 
 
 def load_workflow_guard():
@@ -33,9 +32,9 @@ class WorkflowGuardTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertIn("validation passed", result.stdout)
 
-    def test_status_reports_creative_stage_for_epxx(self):
+    def test_status_reports_v2_shape_for_new_project(self):
         result = subprocess.run(
-            [sys.executable, "tools/workflow_guard.py", "status", "--project", SAMPLE_PROJECT_ID, "--episode", "epXX"],
+            [sys.executable, "tools/workflow_guard.py", "status", "--project", "NEW", "--episode", "ep01"],
             cwd=ROOT,
             capture_output=True,
             text=True,
@@ -44,30 +43,41 @@ class WorkflowGuardTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         payload = yaml.safe_load(result.stdout)
         episode = payload["projects"][0]["episodes"][0]
-        self.assertEqual(episode["orchestration_result"]["current_stage"], "创意定义")
-        self.assertTrue(episode["orchestration_result"]["needs_business_review"])
-        self.assertTrue(episode["orchestration_result"]["needs_compliance_review"])
+        self.assertIn("studio_status", episode)
+        self.assertIn("shot_ledger", episode)
+        self.assertEqual(episode["studio_status"]["current_stage"], "作品与剧本")
+        self.assertEqual(episode["studio_status"]["next_agent"], "story-agent")
 
-    def test_status_orchestration_output_matches_schema(self):
+    def test_starter_templates_match_schemas(self):
         workflow_guard = load_workflow_guard()
-        result = subprocess.run(
-            [sys.executable, "tools/workflow_guard.py", "status", "--project", SAMPLE_PROJECT_ID, "--episode", "epXX"],
-            cwd=ROOT,
-            capture_output=True,
-            text=True,
-            check=False,
-        )
-        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-        payload = yaml.safe_load(result.stdout)
-        episode = payload["projects"][0]["episodes"][0]
-        orchestration_schema = yaml.safe_load((ROOT / "schemas" / "orchestration-result.schema.yaml").read_text())
-        ledger_schema = yaml.safe_load((ROOT / "schemas" / "segment-ledger.schema.yaml").read_text())
-        orchestration_issues = workflow_guard.validate_json_schema(episode["orchestration_result"], orchestration_schema)
-        ledger_issues = workflow_guard.validate_json_schema(episode["segment_ledger"], ledger_schema)
-        self.assertFalse(orchestration_issues, "\n".join(issue.message for issue in orchestration_issues))
-        self.assertFalse(ledger_issues, "\n".join(issue.message for issue in ledger_issues))
+        template_schema_pairs = {
+            "templates/series/creative-thesis.template.yaml": "schemas/creative-thesis.schema.yaml",
+            "templates/episodes/epXX/script/script.template.yaml": "schemas/script.schema.yaml",
+            "templates/episodes/epXX/script/script-doctor-report.template.yaml": "schemas/script-doctor-report.schema.yaml",
+            "templates/episodes/epXX/director/shot-design-table.template.yaml": "schemas/shot-design-table.schema.yaml",
+            "templates/episodes/epXX/assets/visual-style-bible.template.yaml": "schemas/visual-style-bible.schema.yaml",
+            "templates/episodes/epXX/assets/asset-index.template.yaml": "schemas/asset-index.schema.yaml",
+            "templates/episodes/epXX/seedance/seedance-calibration-report.template.yaml": "schemas/seedance-calibration-report.schema.yaml",
+            "templates/episodes/epXX/seedance/generation-failure-library.template.yaml": "schemas/generation-failure-library.schema.yaml",
+            "templates/episodes/epXX/seedance/manual-generation-package.template.yaml": "schemas/manual-generation-package.schema.yaml",
+            "templates/episodes/epXX/music/suno-music-task-card.template.yaml": "schemas/suno-music-task-card.schema.yaml",
+        }
+        for template_path, schema_path in template_schema_pairs.items():
+            with self.subTest(template=template_path):
+                payload = yaml.safe_load((ROOT / template_path).read_text())
+                schema = yaml.safe_load((ROOT / schema_path).read_text())
+                issues = workflow_guard.validate_json_schema(payload, schema)
+                self.assertFalse(issues, "\n".join(issue.message for issue in issues))
 
-    def test_sync_compat_generates_notice(self):
+    def test_manual_generation_template_respects_seedance_rules(self):
+        payload = yaml.safe_load((ROOT / "templates/episodes/epXX/seedance/manual-generation-package.template.yaml").read_text())
+        task = payload["tasks"][0]
+        self.assertLessEqual(len(task["platform_upload_manifest"]), 9)
+        self.assertTrue(task["audio"]["dialogue_present"])
+        self.assertIn("Audio:", task["audio"]["prompt_text"])
+        self.assertEqual(task["target_model"], "Seedance 2.0")
+
+    def test_sync_compat_generates_v2_mirror(self):
         result = subprocess.run(
             [sys.executable, "tools/workflow_guard.py", "sync-compat"],
             cwd=ROOT,
@@ -76,81 +86,9 @@ class WorkflowGuardTests(unittest.TestCase):
             check=False,
         )
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-        producer_agent = (ROOT / ".claude" / "agents" / "producer-agent.md").read_text()
+        producer_agent = (ROOT / ".claude" / "agents" / "studio-producer.md").read_text()
         self.assertTrue(producer_agent.startswith("<!-- compat mirror:"))
-        self.assertIn(".claude/skills/", producer_agent)
-
-    def test_script_schema_rejects_action_description(self):
-        workflow_guard = load_workflow_guard()
-        schema = yaml.safe_load((ROOT / "schemas" / "script.schema.yaml").read_text())
-        payload = {
-            "metadata": {
-                "series_id": "SER001",
-                "episode_id": "ep01",
-                "version": "1.0",
-                "status": "draft",
-                "created_at": "2026-04-24T00:00:00+08:00",
-                "updated_at": "2026-04-24T00:00:00+08:00",
-                "based_on": {},
-            },
-            "episode": {
-                "title": "测试",
-                "goal": "测试目标",
-                "synopsis": "测试梗概",
-                "core_conflict": "测试冲突",
-            },
-            "scenes": [
-                {
-                    "scene_id": "SCENE_01",
-                    "location": "酒馆",
-                    "time": "夜",
-                    "characters": ["阿烬"],
-                    "action_description": "旧字段",
-                    "dialogue": [],
-                    "emotion": "紧张",
-                    "value_change": "+",
-                    "production_note": "note",
-                    "estimated_duration": "15s",
-                }
-            ],
-            "structure_check": {},
-            "platform_check": {},
-            "risks": {},
-            "confirmed_items": [],
-            "pending_items": [],
-        }
-        issues = workflow_guard.validate_json_schema(payload, schema)
-        joined = "\n".join(issue.message for issue in issues)
-        self.assertIn("unexpected key `action_description`", joined)
-
-    def test_starter_templates_match_schemas(self):
-        workflow_guard = load_workflow_guard()
-        template_schema_pairs = {
-            "templates/series/creative-bible.template.yaml": "schemas/creative-bible.schema.yaml",
-            "templates/series/synopsis.template.yaml": "schemas/synopsis.schema.yaml",
-            "templates/series/episode-plan.template.yaml": "schemas/episode-plan.schema.yaml",
-            "templates/reviews/business-review-report.template.yaml": "schemas/business-review.schema.yaml",
-            "templates/reviews/compliance-report.template.yaml": "schemas/compliance-review.schema.yaml",
-            "templates/episodes/epXX/script/script.template.yaml": "schemas/script.schema.yaml",
-            "templates/episodes/epXX/segments/segments.template.yaml": "schemas/segments.schema.yaml",
-            "templates/episodes/epXX/segments/tasks/epXX-SEG01.template.yaml": "schemas/segment-task.schema.yaml",
-            "templates/episodes/epXX/assets/asset-manifest.template.yaml": "schemas/asset-manifest.schema.yaml",
-            "templates/episodes/epXX/assets/asset-prompts.template.yaml": "schemas/asset-prompts.schema.yaml",
-            "templates/episodes/epXX/assets/asset-index.template.yaml": "schemas/asset-index.schema.yaml",
-            "templates/episodes/epXX/assets/asset-archive.template.yaml": "schemas/asset-archive.schema.yaml",
-            "templates/episodes/epXX/videos/video-prompts.template.yaml": "schemas/video-prompts.schema.yaml",
-            "templates/episodes/epXX/videos/video-tasks.template.yaml": "schemas/video-tasks.schema.yaml",
-            "templates/episodes/epXX/videos/video-tasks-final.template.yaml": "schemas/video-tasks.schema.yaml",
-            "templates/episodes/epXX/videos/video-archive.template.yaml": "schemas/video-archive.schema.yaml",
-            "templates/episodes/epXX/orchestration/orchestration-result.template.yaml": "schemas/orchestration-result.schema.yaml",
-            "templates/episodes/epXX/orchestration/segment-ledger.template.yaml": "schemas/segment-ledger.schema.yaml",
-        }
-        for template_path, schema_path in template_schema_pairs.items():
-            with self.subTest(template=template_path):
-                payload = yaml.safe_load((ROOT / template_path).read_text())
-                schema = yaml.safe_load((ROOT / schema_path).read_text())
-                issues = workflow_guard.validate_json_schema(payload, schema)
-                self.assertFalse(issues, "\n".join(issue.message for issue in issues))
+        self.assertTrue((ROOT / ".claude" / "skills" / "seedance-upload-package" / "SKILL.md").exists())
 
 
 if __name__ == "__main__":

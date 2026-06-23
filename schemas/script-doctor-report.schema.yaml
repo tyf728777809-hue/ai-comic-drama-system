@@ -1,0 +1,26 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+title: script-doctor-report
+type: object
+additionalProperties: false
+x-workflow-guard:
+  kind: script-doctor-report
+  canonical_paths:
+    - project_data/projects/*/episodes/*/script/script-doctor-report-v*.yaml
+required: [metadata, verdict, findings, required_revisions, humanizer_notes, pending_items]
+properties:
+  metadata:
+    type: object
+    required: [project_id, episode_id, version, status, created_at, updated_at, based_on]
+    properties:
+      project_id: {type: string}
+      episode_id: {type: string}
+      version: {type: string}
+      status: {type: string, enum: [draft, in_review, approved, rejected]}
+      created_at: {type: string}
+      updated_at: {type: string}
+      based_on: {type: object}
+  verdict: {type: string, enum: [pass, revise, kill]}
+  findings: {type: array}
+  required_revisions: {type: array}
+  humanizer_notes: {type: array}
+  pending_items: {type: array}

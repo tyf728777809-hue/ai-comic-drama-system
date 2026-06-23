@@ -1,0 +1,30 @@
+metadata:
+  project_id: "NEW"
+  episode_id: "ep01"
+  version: "1.0"
+  status: "draft"
+  created_at: "2026-05-31T00:00:00+08:00"
+  updated_at: "2026-05-31T00:00:00+08:00"
+  based_on:
+    shot_design_table: "project_data/projects/NEW/episodes/ep01/director/shot-design-table-v1.0.yaml"
+look:
+  palette: "主色和辅助色。"
+  lighting: "光线规则。"
+  composition: "构图规则。"
+characters:
+  - character_id: "CHAR_01"
+    appearance_anchor: "外观锚点。"
+wardrobe:
+  - wardrobe_id: "WARD_01"
+    character_id: "CHAR_01"
+    description: "服装锁定。"
+locations:
+  - location_id: "LOC_01"
+    description: "场景锁定。"
+props:
+  - prop_id: "PROP_01"
+    description: "关键道具。"
+continuity_rules:
+  - "连续性规则。"
+pending_items:
+  - "待确认项。"

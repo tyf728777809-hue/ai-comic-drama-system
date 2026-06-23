@@ -1,0 +1,18 @@
+metadata:
+  project_id: "NEW"
+  episode_id: "ep01"
+  version: "1.0"
+  status: "draft"
+  created_at: "2026-05-31T00:00:00+08:00"
+  updated_at: "2026-05-31T00:00:00+08:00"
+  based_on:
+    calibration_report: "project_data/projects/NEW/episodes/ep01/seedance/seedance-calibration-report-v1.0.yaml"
+failures:
+  - failure_id: "FAIL_001"
+    symptom: "声音漂移。"
+    likely_cause: "Audio 指令过多。"
+    fix: "减少声音元素。"
+retry_rules:
+  - "同一任务重试前先改 prompt 或上传图。"
+pending_items:
+  - "待确认项。"

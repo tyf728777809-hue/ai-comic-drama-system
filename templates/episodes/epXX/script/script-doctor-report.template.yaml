@@ -1,0 +1,20 @@
+metadata:
+  project_id: "NEW"
+  episode_id: "ep01"
+  version: "1.0"
+  status: "draft"
+  created_at: "2026-05-31T00:00:00+08:00"
+  updated_at: "2026-05-31T00:00:00+08:00"
+  based_on:
+    script: "project_data/projects/NEW/episodes/ep01/script/script-v1.0.yaml"
+verdict: "revise"
+findings:
+  - severity: "major"
+    area: "story"
+    detail: "需要更强冲突。"
+required_revisions:
+  - "改稿要求。"
+humanizer_notes:
+  - "对白需要减少解释感。"
+pending_items:
+  - "待确认项。"

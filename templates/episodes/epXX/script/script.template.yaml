@@ -1,60 +1,34 @@
 metadata:
-  series_id: "SER0001"
-  episode_id: "epXX"
+  project_id: "NEW"
+  episode_id: "ep01"
   version: "1.0"
   status: "draft"
-  created_at: "2026-04-25T00:00:00+08:00"
-  updated_at: "2026-04-25T00:00:00+08:00"
+  created_at: "2026-05-31T00:00:00+08:00"
+  updated_at: "2026-05-31T00:00:00+08:00"
   based_on:
-    creative_bible: "project_data/projects/{project_id}/series/creative-bible-v1.0.yaml"
-    synopsis: "project_data/projects/{project_id}/series/synopsis-v1.0.yaml"
-    episode_plan: "project_data/projects/{project_id}/series/episode-plan-v1.0.yaml"
+    creative_thesis: "project_data/projects/NEW/series/creative-thesis-v1.0.yaml"
 episode:
-  title: ""
-  goal: ""
-  synopsis: ""
-  core_conflict: ""
-characters_in_episode:
-  - name: ""
-    role_in_episode: ""
-    key_actions:
-      - ""
-    visual_keywords:
-      - ""
+  title: "第一集"
+  goal: "本集目标。"
+  synopsis: "本集梗概。"
+  core_conflict: "核心冲突。"
+  ending_hook: "结尾钩子。"
 scenes:
   - scene_id: "SCENE_01"
-    location: ""
-    time: ""
+    location: "地点"
     characters:
-      - ""
-    action: ""
+      - "CHAR_01"
+    conflict: "场景冲突。"
+    value_change: "从什么变成什么。"
+    action: "可见行动。"
     dialogue:
-      - character: ""
-        line: ""
-    emotion: ""
-    value_change: ""
-    production_note: ""
-    estimated_duration: "15s"
-episode_hooks:
-  opening_hook:
-    description: ""
-    visual_frame: ""
-  mid_reversal:
-    description: ""
-    setup_in: ""
-    visual_frame: ""
-  ending_hook:
-    description: ""
-    visual_frame: ""
-    leads_to: ""
-emotion_arc:
-  overall_arc: ""
-  peak_scene: ""
-  peak_emotion: ""
-  low_point_scene: ""
-structure_check: {}
-platform_check: {}
-risks: {}
-confirmed_items: []
+      - speaker: "CHAR_01"
+        line: "台词。"
+        subtext: "潜台词。"
+    subtext: "整场戏的潜台词。"
+    production_note: "生产注意事项。"
+story_kill_pass:
+  verdict: "revise"
+  reason: "尚未正式放行。"
 pending_items:
-  - ""
+  - "待确认项。"

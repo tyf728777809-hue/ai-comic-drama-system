@@ -1,0 +1,26 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+title: seedance-calibration-report
+type: object
+additionalProperties: false
+x-workflow-guard:
+  kind: seedance-calibration-report
+  canonical_paths:
+    - project_data/projects/*/episodes/*/seedance/seedance-calibration-report-v*.yaml
+required: [metadata, test_shots, findings, approved_prompt_rules, decision, pending_items]
+properties:
+  metadata:
+    type: object
+    required: [project_id, episode_id, version, status, created_at, updated_at, based_on]
+    properties:
+      project_id: {type: string}
+      episode_id: {type: string}
+      version: {type: string}
+      status: {type: string, enum: [draft, in_review, approved, rejected]}
+      created_at: {type: string}
+      updated_at: {type: string}
+      based_on: {type: object}
+  test_shots: {type: array}
+  findings: {type: array}
+  approved_prompt_rules: {type: array}
+  decision: {type: string, enum: [pass, revise, block]}
+  pending_items: {type: array}

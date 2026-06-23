@@ -1,0 +1,52 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+title: shot-design-table
+type: object
+additionalProperties: false
+x-workflow-guard:
+  kind: shot-design-table
+  canonical_paths:
+    - project_data/projects/*/episodes/*/director/shot-design-table-v*.yaml
+required: [metadata, summary, shots, audience_jury_pass, pending_items]
+properties:
+  metadata:
+    type: object
+    required: [project_id, episode_id, version, status, created_at, updated_at, based_on]
+    properties:
+      project_id: {type: string}
+      episode_id: {type: string}
+      version: {type: string}
+      status: {type: string, enum: [draft, in_review, approved, rejected]}
+      created_at: {type: string}
+      updated_at: {type: string}
+      based_on: {type: object}
+  summary: {type: object}
+  shots:
+    type: array
+    minItems: 1
+    items:
+      type: object
+      required: [shot_id, scene_id, duration_target, drama_purpose, visual_purpose, audio_purpose, characters, dialogue, action, performance_beats, camera_movement, emotion_arc, continuity, seedance_strategy, asset_needs, status]
+      properties:
+        shot_id: {type: string}
+        scene_id: {type: string}
+        duration_target: {type: string}
+        drama_purpose: {type: string}
+        visual_purpose: {type: string}
+        audio_purpose: {type: string}
+        characters: {type: array}
+        dialogue: {type: array}
+        action: {type: string}
+        performance_beats: {type: array}
+        camera_movement: {type: string}
+        emotion_arc: {type: string}
+        continuity: {type: string}
+        seedance_strategy: {type: string}
+        asset_needs: {type: array}
+        status: {type: string}
+  audience_jury_pass:
+    type: object
+    required: [verdict, reason]
+    properties:
+      verdict: {type: string, enum: [pass, revise, kill]}
+      reason: {type: string}
+  pending_items: {type: array}

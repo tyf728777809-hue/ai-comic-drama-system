@@ -1,0 +1,45 @@
+metadata:
+  project_id: "NEW"
+  episode_id: "ep01"
+  version: "1.0"
+  status: "draft"
+  created_at: "2026-05-31T00:00:00+08:00"
+  updated_at: "2026-05-31T00:00:00+08:00"
+  based_on:
+    shot_design_table: "project_data/projects/NEW/episodes/ep01/director/shot-design-table-v1.0.yaml"
+    asset_index: "project_data/projects/NEW/episodes/ep01/assets/asset-index-v1.0.yaml"
+summary:
+  platform: "LibTV / Seedance 手工生成"
+  note: "不调用 API，不归档生成视频。"
+tasks:
+  - task_id: "SD_SH001"
+    shot_id: "SH001"
+    duration: "8s"
+    target_model: "Seedance 2.0"
+    director_continuity_mode: "first_frame_only"
+    platform_upload_manifest:
+      - order: 1
+        role: "first_frame"
+        asset_id: "AST_SH001_FF"
+        path: "project_data/projects/NEW/episodes/ep01/assets/images/AST_SH001_FF.png"
+        required: true
+        note: "首帧。"
+    seedance_prompt:
+      en: "Style & Mood: ... Dynamic Description: ... Static Description: ... Audio: ..."
+      zh: "Style & Mood: ... Dynamic Description: ... Static Description: ... Audio: ..."
+      source_contract: "seedance-director-json-v1"
+    audio:
+      mode: "seedance_native"
+      dialogue_present: true
+      prompt_text: "Audio: CHAR_01 用压低的声音说短台词，停顿半秒，环境保持安静。"
+      restrictions:
+        - "no subtitles"
+        - "no extra narrator"
+    restrictions:
+      - "no watermark"
+      - "no sudden scene change"
+    retry_notes:
+      - "如果声音过满，减少环境声描述。"
+    status: "draft"
+pending_items:
+  - "待确认项。"

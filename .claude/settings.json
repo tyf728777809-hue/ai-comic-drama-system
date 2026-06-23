@@ -1,7 +1,7 @@
 {
   "project": {
-    "name": "AI 漫剧自动生产系统",
-    "version": "0.1.0"
+    "name": "V2 AI 影像生产系统",
+    "version": "2.0.0"
   },
   "permissions": {
     "allow": [],
@@ -9,14 +9,12 @@
   },
   "agents": {
     "enabled": [
-      "producer-agent",
-      "creative-development-agent",
-      "script-development-agent",
-      "production-planning-agent",
-      "asset-production-agent",
-      "video-production-agent",
-      "business-review-agent",
-      "compliance-review-agent"
+      "studio-producer",
+      "story-agent",
+      "director-agent",
+      "visual-asset-agent",
+      "seedance-package-agent",
+      "music-agent"
     ]
   }
 }

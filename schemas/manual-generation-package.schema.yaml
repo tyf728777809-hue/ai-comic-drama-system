@@ -1,0 +1,54 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+title: manual-generation-package
+type: object
+additionalProperties: false
+x-workflow-guard:
+  kind: manual-generation-package
+  canonical_paths:
+    - project_data/projects/*/episodes/*/seedance/manual-generation-package-v*.yaml
+required: [metadata, summary, tasks, pending_items]
+properties:
+  metadata:
+    type: object
+    required: [project_id, episode_id, version, status, created_at, updated_at, based_on]
+    properties:
+      project_id: {type: string}
+      episode_id: {type: string}
+      version: {type: string}
+      status: {type: string, enum: [draft, in_review, approved, rejected]}
+      created_at: {type: string}
+      updated_at: {type: string}
+      based_on: {type: object}
+  summary: {type: object}
+  tasks:
+    type: array
+    minItems: 1
+    items:
+      type: object
+      required: [task_id, shot_id, duration, target_model, director_continuity_mode, platform_upload_manifest, seedance_prompt, audio, restrictions, retry_notes, status]
+      properties:
+        task_id: {type: string}
+        shot_id: {type: string}
+        duration: {type: string}
+        target_model: {type: string}
+        director_continuity_mode: {type: string}
+        platform_upload_manifest: {type: array}
+        seedance_prompt:
+          type: object
+          required: [en, zh, source_contract]
+          properties:
+            en: {type: string}
+            zh: {type: string}
+            source_contract: {type: string}
+        audio:
+          type: object
+          required: [mode, dialogue_present, prompt_text, restrictions]
+          properties:
+            mode: {type: string}
+            dialogue_present: {type: boolean}
+            prompt_text: {type: string}
+            restrictions: {type: array}
+        restrictions: {type: array}
+        retry_notes: {type: array}
+        status: {type: string}
+  pending_items: {type: array}

@@ -1,0 +1,21 @@
+metadata:
+  project_id: "NEW"
+  episode_id: "ep01"
+  version: "1.0"
+  status: "draft"
+  created_at: "2026-05-31T00:00:00+08:00"
+  updated_at: "2026-05-31T00:00:00+08:00"
+  based_on:
+    shot_design_table: "project_data/projects/NEW/episodes/ep01/director/shot-design-table-v1.0.yaml"
+test_shots:
+  - shot_id: "SH001"
+    test_type: "dialogue_closeup"
+    upload_count: 1
+    result_note: "待试拍。"
+findings:
+  - "待记录。"
+approved_prompt_rules:
+  - "待沉淀。"
+decision: "revise"
+pending_items:
+  - "待确认项。"

@@ -1,0 +1,31 @@
+---
+name: seedance-calibration
+description: 用于 V2 正式批量生成前的 Seedance 试拍校准。测试代表镜头，沉淀 prompt 规则、上传图策略和失败库。
+---
+
+# Seedance Calibration
+
+## 目标
+
+在批量生产前用 3-5 个代表镜头验证 Seedance 是否吃当前风格、图片和 Audio prompt。
+
+## 必测镜头
+
+- 对白近景
+- 情绪特写
+- 动作镜头
+- 场景远景
+- 音画一体镜头
+
+## 记录内容
+
+- 上传图数量与顺序
+- prompt 中有效的描述方式
+- 失效词、失效动作、声音漂移
+- 首尾帧或参考图冲突
+- 是否允许进入正式批量任务包
+
+## 输出
+
+- `seedance-calibration-report.yaml`
+- `generation-failure-library.yaml`

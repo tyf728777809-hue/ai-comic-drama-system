@@ -1,0 +1,51 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+title: creative-thesis
+type: object
+additionalProperties: false
+x-workflow-guard:
+  kind: creative-thesis
+  canonical_paths:
+    - project_data/projects/*/series/creative-thesis-v*.yaml
+required: [metadata, thesis, audience, characters, quality_bar, story_kill_pass, pending_items]
+properties:
+  metadata:
+    type: object
+    required: [project_id, version, status, created_at, updated_at]
+    properties:
+      project_id: {type: string}
+      version: {type: string}
+      status: {type: string, enum: [draft, in_review, approved, rejected]}
+      created_at: {type: string}
+      updated_at: {type: string}
+  thesis:
+    type: object
+    required: [title, logline, theme, anti_theme, emotional_promise, non_negotiables, forbidden_cliches]
+    properties:
+      title: {type: string}
+      logline: {type: string}
+      theme: {type: string}
+      anti_theme: {type: string}
+      emotional_promise: {type: string}
+      non_negotiables: {type: array}
+      forbidden_cliches: {type: array}
+  audience:
+    type: object
+    required: [primary_viewer, first_30_seconds_hook, why_continue]
+    properties:
+      primary_viewer: {type: string}
+      first_30_seconds_hook: {type: string}
+      why_continue: {type: string}
+  characters: {type: array}
+  quality_bar:
+    type: object
+    required: [artistic_standard, audience_standard]
+    properties:
+      artistic_standard: {type: string}
+      audience_standard: {type: string}
+  story_kill_pass:
+    type: object
+    required: [verdict, reason]
+    properties:
+      verdict: {type: string, enum: [pass, revise, kill]}
+      reason: {type: string}
+  pending_items: {type: array}

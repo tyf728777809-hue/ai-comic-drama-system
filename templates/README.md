@@ -1,26 +1,21 @@
-# Templates
+# V2 Starter YAML 模板
 
-这里放的是可直接复制的 starter YAML，不是 schema。
+这里保存可复制到 `project_data/projects/{project_id}/...` 的 V2 起始模板。
 
-使用方式：
+模板只用于启动新项目，不是正式项目数据。复制后按文件名中的版本号保存，例如：
 
-1. 从 `templates/` 复制对应文件到 `project_data/`
-2. 去掉 `.template`
-3. 改成正式版本名，例如 `creative-bible-v1.0.yaml`
-4. 填内容后跑 `python3 tools/workflow_guard.py validate`
+- `templates/series/creative-thesis.template.yaml`
+- `templates/episodes/epXX/script/script.template.yaml`
+- `templates/episodes/epXX/script/script-doctor-report.template.yaml`
+- `templates/episodes/epXX/director/shot-design-table.template.yaml`
+- `templates/episodes/epXX/assets/visual-style-bible.template.yaml`
+- `templates/episodes/epXX/assets/asset-index.template.yaml`
+- `templates/episodes/epXX/seedance/manual-generation-package.template.yaml`
+- `templates/episodes/epXX/music/suno-music-task-card.template.yaml`
 
-## 模板分组
+日常校验：
 
-- `templates/series/`：系列级创意和剧本阶段文件
-- `templates/reviews/`：业务 / 合规审核报告模板
-- `templates/episodes/epXX/`：单集级剧本、segments、assets、videos、orchestration
-
-## 推荐起手顺序
-
-1. `series/creative-bible.template.yaml`
-2. `reviews/business-review-report.template.yaml`
-3. `reviews/compliance-report.template.yaml`
-4. `series/synopsis.template.yaml`
-5. `series/episode-plan.template.yaml`
-6. `episodes/epXX/script/script.template.yaml`
-7. `episodes/epXX/segments/segments.template.yaml`
+```bash
+python3 tools/workflow_guard.py validate
+python3 tools/workflow_guard.py status --project NEW --episode ep01
+```

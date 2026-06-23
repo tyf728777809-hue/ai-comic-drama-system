@@ -1,0 +1,41 @@
+metadata:
+  project_id: "NEW"
+  episode_id: "ep01"
+  version: "1.0"
+  status: "draft"
+  created_at: "2026-05-31T00:00:00+08:00"
+  updated_at: "2026-05-31T00:00:00+08:00"
+  based_on:
+    script: "project_data/projects/NEW/episodes/ep01/script/script-v1.0.yaml"
+summary:
+  total_shots: 1
+  design_note: "按戏剧动作拆镜头。"
+shots:
+  - shot_id: "SH001"
+    scene_id: "SCENE_01"
+    duration_target: "8s"
+    drama_purpose: "这一镜的戏剧变化。"
+    visual_purpose: "画面承担的作用。"
+    audio_purpose: "声音承担的作用。"
+    characters:
+      - "CHAR_01"
+    dialogue:
+      - speaker: "CHAR_01"
+        line: "短台词。"
+    action: "一个核心动作。"
+    performance_beats:
+      - "停顿。"
+      - "抬眼。"
+    camera_movement: "static camera"
+    emotion_arc: "从压抑到决定。"
+    continuity: "承接上一镜并交给下一镜。"
+    seedance_strategy: "first_frame_only"
+    asset_needs:
+      - "首帧"
+      - "角色锁定"
+    status: "draft"
+audience_jury_pass:
+  verdict: "revise"
+  reason: "尚未正式放行。"
+pending_items:
+  - "待确认项。"

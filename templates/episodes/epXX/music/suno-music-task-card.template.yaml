@@ -1,0 +1,28 @@
+metadata:
+  project_id: "NEW"
+  episode_id: "ep01"
+  version: "1.0"
+  status: "draft"
+  created_at: "2026-05-31T00:00:00+08:00"
+  updated_at: "2026-05-31T00:00:00+08:00"
+  based_on:
+    creative_thesis: "project_data/projects/NEW/series/creative-thesis-v1.0.yaml"
+briefs:
+  - music_id: "MUSIC_01"
+    use_case: "片尾曲"
+    mood: "克制、余韵、带一点不甘。"
+    style_tags:
+      - "cinematic"
+      - "slow tempo"
+    negative_tags:
+      - "overly cheerful"
+    lyrics: "歌词草案。"
+candidates:
+  - candidate_id: "MUSIC_01_A"
+    task_id: "pending"
+    file_path: ""
+    note: "待生成。"
+music_sync_notes:
+  - "音乐不承担对白同步。"
+pending_items:
+  - "待确认项。"
